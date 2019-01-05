@@ -1,8 +1,14 @@
 #pragma once
 class Program
 {
+private:
+
 public:
 	Program();
-	~Program();
+	~Program() {};
+	void run();
+	void printMenu()const;
+	char input(std::string&);
+
 };
 

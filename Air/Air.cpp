@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "FileIO.h"
+#include "Program.h"
+
 
 
 int main()
 {
-	const std::string filename{ "tempdata2.csv" };
-	FileIO fileio(filename);
-	fileio.printVall();
+	Program P;
+	P.run();
 	std::cin.get();
 }
 
