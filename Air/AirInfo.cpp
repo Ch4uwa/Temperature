@@ -13,11 +13,13 @@ AirInfo::AirInfo(const std::string& file)
 	this->temperature = stod(holder);
 	getline(ss, holder);
 	this->humidity = stoi(holder);
+	MoldLevel();
 }
 
 AirInfo::AirInfo(std::string date, std::string place, double avgTemperature, double avgHumidity)
 	:date(date), place(place), avgTemperature(avgTemperature), avgHumidity(avgHumidity)
 {
+	AvgMoldLevel();
 }
 
 AirInfo::~AirInfo()
@@ -30,7 +32,9 @@ std::string AirInfo::toString()const
 	if (getMoldWarning())
 	{
 		info << "==============================\n"
-			<< "Warning! Mold risk";
+			<< "Warning! Mold risk "
+			<< std::fixed << std::setprecision(1)
+			<< this->riskLevel << "\n";
 	}
 	info << "=============================="
 		<< "\nPlacement: " << this->place
@@ -48,7 +52,9 @@ std::string AirInfo::avgToString() const
 	if (getMoldWarning())
 	{
 		info << "==============================\n"
-			<< "Warning! Mold risk";
+			<< "Warning! Mold risk "
+			<< std::fixed << std::setprecision(1)
+			<< this->riskLevel << "\n";
 	}
 	info << "\n=============================="
 		<< "\nPlacement: " << this->place
@@ -60,20 +66,26 @@ std::string AirInfo::avgToString() const
 	return info.str();
 }
 
+/* MOLD Methods */
 bool AirInfo::getMoldWarning()const
 {
-	// TODO Time counting, longer the time higher the risk.
-	if (this->temperature >= moldTemp[0] && this->humidity >= moldHumid[6])
+	if (riskLevel > 0)
 	{
-		int i{ 6 };
-		while (this->temperature <= moldTemp[i])
-		{
-			if (this->humidity >= moldHumid[i])
-			{
-				return true;
-			}
-			i--;
-		}
+		return true;
 	}
 	return false;
 }
+void AirInfo::MoldLevel()
+{
+	auto moldRH = -0.0015*pow(this->temperature, 3) +
+		0.1193*pow(this->temperature, 2) - 2.9878*this->temperature + 102.96;
+	this->riskLevel = (this->humidity - moldRH);
+}
+void AirInfo::AvgMoldLevel()
+{
+	auto moldRH = -0.0015*pow(this->avgTemperature, 3) +
+		0.1193*pow(this->avgTemperature, 2) - 2.9878*this->avgTemperature + 102.96;
+	this->riskLevel = (this->avgHumidity - moldRH);
+}
+
+

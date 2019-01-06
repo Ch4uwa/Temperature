@@ -1,30 +1,28 @@
 #include "pch.h"
 #include "FileIO.h"
 
-
+// Constructor
 FileIO::FileIO(const std::string& filename)
 {
 	vInfoInside.reserve(vReserveAmount);
 	vInfoOutside.reserve(vReserveAmount);
 	vInsideAvgInfo.reserve(vReserveAmountSplit);
 	vOutsideAvgInfo.reserve(vReserveAmountSplit);
+	myMap.reserve(401);
 	std::ifstream inFile(filename);
 	if (inFile)
 	{
-
 		std::string file{};
 		while (getline(inFile, file))
 		{
 			if (file.find("Inne") != std::string::npos)
 			{
-				//InsideStream << file << "\n";
 				AirInfo airinfo(file);
 				vInfoInside.emplace_back(airinfo);
 				countIn++;
 			}
 			else
 			{
-				//OutsideStream << file << "\n";
 				AirInfo airinfo(file);
 				vInfoOutside.emplace_back(airinfo);
 				countOut++;
@@ -38,38 +36,19 @@ FileIO::FileIO(const std::string& filename)
 			<< vInsideAvgInfo.size() << " Days from inside sensor\n";
 		avgVals(vInfoOutside, vOutsideAvgInfo);
 		std::cout << "Done making average values.\n"
-			<< vOutsideAvgInfo.size() << " Days from outside sensor\n";
+			<< vOutsideAvgInfo.size() << " Days from outside sensor\n" << myMap.size();
 	}
 	else
 	{
 		std::cerr << "ERROR reading file: " << filename << "\n";
 	}
 }
-
+// Destructor
 FileIO::~FileIO()
 {
 }
 
-void FileIO::printVall()const
-{
-	for (const auto& ele : vInfoInside)
-	{
-		std::cout << ele.toString();
-		std::cin.get();
-	}
-}
-
-void FileIO::printVavg() const
-{
-	int count{};
-	for (const auto& ele : vInsideAvgInfo)
-	{
-
-		std::cout << ele.avgToString();
-	}
-	LOG(count++);
-}
-
+// Make average values
 void FileIO::avgVals(std::vector<AirInfo>& fromVec, std::vector<AirInfo>& toVec)
 {
 	std::string d{};
@@ -90,9 +69,7 @@ void FileIO::avgVals(std::vector<AirInfo>& fromVec, std::vector<AirInfo>& toVec)
 			t = t / count;
 			AirInfo airinfo(d, p, t, h);
 			toVec.emplace_back(airinfo);
-
-			//myMap.insert(std::make_pair(hash(d), AirInfo(d, p, t, h)));
-
+			myMap.insert(std::make_pair(d, AirInfo(d, p, t, h)));
 			next = itr;
 			count = 0;
 			h = 0;
@@ -111,48 +88,171 @@ void FileIO::avgVals(std::vector<AirInfo>& fromVec, std::vector<AirInfo>& toVec)
 	t = t / count;
 	AirInfo airinfo(d, p, t, h);
 	toVec.emplace_back(airinfo);
-	//myMap.insert(std::make_pair(hash(d), AirInfo(d, p, t, h)));
+	myMap.insert(std::make_pair(d, AirInfo(d, p, t, h)));
 }
 
-void FileIO::printWarning()const
+//Sort
+void FileIO::sortInside(int sortBy)
 {
-	for (const auto& ele : vInfoInside)
+	auto it = vInsideAvgInfo.begin();
+	auto itend = vInsideAvgInfo.end();
+
+	switch (sortBy)
 	{
-		if (ele.getMoldWarning())
+	case 1:
+		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+			{
+				return lhs.getAvgTemp() > rhs.getAvgTemp();
+			});
+		break;
+	case 2:
+		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+			{
+				return lhs.getAvgHumid() > rhs.getAvgHumid();
+			});
+		break;
+	case 3:
+		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+			{
+				return lhs.getRiskLevel() > rhs.getRiskLevel();
+			});
+		break;
+	}
+
+}
+void FileIO::sortOutside(int sortBy)
+{
+	auto it = vOutsideAvgInfo.begin();
+	auto itend = vOutsideAvgInfo.end();
+
+	switch (sortBy)
+	{
+	case 1:
+		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+			{
+				return lhs.getAvgTemp() > rhs.getAvgTemp();
+			});
+		break;
+	case 2:
+		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+			{
+				return lhs.getAvgHumid() > rhs.getAvgHumid();
+			});
+		break;
+	case 3:
+		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+			{
+				return lhs.getRiskLevel() > rhs.getRiskLevel();
+			});
+		break;
+	}
+}
+
+
+// Search TODO 
+
+
+void FileIO::searchMap(const std::string & searchWord)
+{
+	auto itr = myMap.equal_range(searchWord);
+	for (auto it = itr.first; it != itr.second; it++)
+		LOG(it->first << "\n" << it->second.avgToString());
+}
+
+
+
+// Print function
+
+
+void FileIO::printMap()
+{
+	for (const auto& n : myMap)
+	{
+		LOG(n.second.avgToString());
+	}
+}
+
+void FileIO::printV(bool avg, bool in, bool warnings) // Print Vector
+{
+	if (avg)
+	{
+		if (warnings&&avg)
 		{
-			std::cout << ele.toString();
-			std::cin.get();
+			for (const auto& ele : in ? vInsideAvgInfo : vOutsideAvgInfo)
+			{
+				if (ele.getRiskLevel() > 0)
+				{
+					ele.toString();
+				}
+			}
+		}
+		else
+		{
+			for (const auto& ele : in ? vInsideAvgInfo : vOutsideAvgInfo)
+			{
+				std::cout << ele.avgToString();
+			}
+		}
+	}
+	else
+	{
+		if (warnings)
+		{
+			for (const auto& ele : in ? vInfoInside : vInfoOutside)
+			{
+				if (ele.getRiskLevel() > 0)
+				{
+					ele.toString();
+				}
+			}
+		}
+		else
+		{
+			for (const auto& ele : in ? vInfoInside : vInfoOutside)
+			{
+				std::cout << ele.toString();
+			}
 		}
 	}
 }
 
-int FileIO::hash(const std::string& date)
+// Metrology Winter Autumn
+std::string FileIO::getMetro(bool Autumn)const
 {
-	int hash{};
-	for (size_t i = 0; i < date.length(); i++)
+	const int days{ 5 }, wTemp{ 0 }, aTemp{ 10 };
+	int i{ 0 };
+	int wDays{}, aDays{};
+	// Metro Winter, Autumn
+	for (; (Autumn ? aDays : wDays) < days && i < vOutsideAvgInfo.size(); i++)
 	{
-		hash += date[i] * (1 + i);
+		if (!Autumn && (vOutsideAvgInfo[i].getAvgTemp() >= wTemp))
+		{
+			wDays = 0;
+		}
+		if (!Autumn && (vOutsideAvgInfo[i].getAvgTemp() < wTemp))
+		{
+			wDays++;
+		}
+		if (Autumn && (vOutsideAvgInfo[i].getAvgTemp() >= aTemp))
+		{
+			aDays = 0;
+		}
+		if (Autumn && (vOutsideAvgInfo[i].getAvgTemp() < aTemp) && (vOutsideAvgInfo[i].getAvgTemp() > wTemp))
+		{
+			aDays++;
+		}
 	}
-	return (hash % 199);
+	return (Autumn ? aDays : wDays) == days ? vOutsideAvgInfo[--i].avgToString() : "Not yet!\n";
 }
 
-void FileIO::mapFind(const std::string& a)
-{
-	std::cout << myMap.find(hash(a))->second.avgToString();
-}
 
-void FileIO::printsort()
-{
-	auto itr = vInsideAvgInfo.begin();
-	
-		
-	for (const auto&n : vInsideAvgInfo)
-	{
-		std::cout << n.getAvgHumid() << "\n";
-	}
-}
 
-//std::string FileIO::search(const std::string& searchWord)
+//int FileIO::hash(const std::string& date)
 //{
-//	return myMap[hash(searchWord)].avgToString();
+//	int hash{};
+//	for (size_t i = 0; i < date.length(); i++)
+//	{
+//		hash += date[i] * (1 + i);
+//	}
+//	return (hash % 199);
 //}

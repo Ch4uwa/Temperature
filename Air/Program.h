@@ -1,4 +1,6 @@
 #pragma once
+#include "FileIO.h"
+
 class Program
 {
 private:
@@ -6,9 +8,11 @@ private:
 public:
 	Program();
 	~Program() {};
-	void run();
-	void printMenu()const;
-	char input(std::string&);
 
+	void run();
+	void printMenu(FileIO& f);
+	void subMenu(int & caseNr);
+	int input();
+	
 };
 

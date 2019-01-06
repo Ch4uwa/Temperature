@@ -15,30 +15,38 @@ private:
 	std::vector<AirInfo> vInsideAvgInfo;
 	std::vector<AirInfo> vOutsideAvgInfo;
 
-	std::multimap<int, AirInfo> myMap;
-
-	std::stringstream InsideStream, OutsideStream;
+	std::unordered_multimap<std::string, AirInfo> myMap;
 public:
 	FileIO(const std::string&);
 	~FileIO();
-	
-	void printVall()const;
-	void printVavg()const;
+
+	/*
+		is door open
+			temp inside, temp outside diff
+
+	*/
+
 	void avgVals(std::vector<AirInfo>& fromVec, std::vector<AirInfo>& toVec);
-	void printWarning() const;
-	int hash(const std::string& date);
+	std::string getMetro(bool Autumn)const;
 
-	// TODO Search map?
+	// Sort Method TODO Sort by biggest temp diff
+	void sortInside(int sortBy);
+	void sortOutside(int sortBy);
+
+
+	// Search
 	
-	void mapFind(const std::string & a);
-	//std::string search(const std::string& searchWord);
+	void searchMap(const std::string& searchWord);
+
+	// Print Method
+	void printV(bool average, bool in, bool warnings);
+	void printMap();
 
 
-	
 
-	// TODO Sort std::stable_sort / mergesort
-	void printsort();
 
+
+	//int hash(const std::string& date);
 
 
 

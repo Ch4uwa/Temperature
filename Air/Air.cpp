@@ -3,10 +3,15 @@
 
 
 
+
+
+
 int main()
 {
-	Program P;
-	P.run();
+	Program p;
+	p.run();
+	//p.printMenu();
+	
 	std::cin.get();
 }
 

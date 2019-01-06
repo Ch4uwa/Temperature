@@ -7,31 +7,43 @@ private:
 	std::string place{};
 	double temperature{};
 	int humidity{};
+
 	double avgTemperature{};
 	double avgHumidity{};
-	const int moldHumid[7]{ 94,90,86,84,82,81,80 };
-	const int moldTemp[7]{ 2,4,6,8,10,12,15 };
+
 	int dryInside{ 30 };
+	int riskLevel{};
+
+	void MoldLevel();
+	void AvgMoldLevel();
 public:
 	AirInfo(const std::string&);
-	//AirInfo():date(""),place(""),avgTemperature(0),avgHumidity(0) {};
+	AirInfo() :date(""), place(""), avgTemperature(0), avgHumidity(0) {}
 	AirInfo(std::string date, std::string place, double avgTemperature, double avgHumidity);
 
 	~AirInfo();
-	
 
 
+	// Methods
 	std::string toString()const;
 	std::string avgToString()const;
+	
+	bool getMoldWarning()const;
 
+	
+
+	// Accessor
 	inline const std::string getDate()const { return this->date; }
 	inline const std::string getPlace()const { return this->place; }
 	inline const int getHumidity()const { return this->humidity; }
 	inline const double getTemp()const { return this->temperature; }
-	inline const double getAvgTemp()const { return this->avgTemperature; }
-	inline const double getAvgHumid()const { return this->avgHumidity; }
-	bool getMoldWarning()const;
+	inline double getAvgTemp()const { return this->avgTemperature; }
+	inline double getAvgHumid()const { return this->avgHumidity; }
+	inline int getRiskLevel()const { return this->riskLevel; }
 
+
+
+	// y=-0,0015x^3+0,1193x^2-2,9878x+102,96
 	/*	Temp/RH MoldGrowth risk
 		0-40 celsius range
 		20-40 celsius if 75% rh risk
