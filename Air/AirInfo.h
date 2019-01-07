@@ -11,6 +11,9 @@ private:
 	double avgTemperature{};
 	double avgHumidity{};
 
+	double maxDiff;
+	double minDiff;
+
 	int dryInside{ 30 };
 	int riskLevel{};
 
@@ -30,7 +33,8 @@ public:
 	
 	bool getMoldWarning()const;
 
-	
+	inline void setDiff(const double& Diff) { this->maxDiff = Diff; };
+	inline void setMinDiff(double& minDiff) { this->minDiff = minDiff; };
 
 	// Accessor
 	inline const std::string getDate()const { return this->date; }
@@ -39,6 +43,7 @@ public:
 	inline const double getTemp()const { return this->temperature; }
 	inline double getAvgTemp()const { return this->avgTemperature; }
 	inline double getAvgHumid()const { return this->avgHumidity; }
+	inline double getTempDiff()const { return this->maxDiff; }
 	inline int getRiskLevel()const { return this->riskLevel; }
 
 

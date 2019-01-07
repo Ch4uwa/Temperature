@@ -33,7 +33,7 @@ public:
 	void sortInside(int sortBy);
 	void sortOutside(int sortBy);
 
-
+	void sortTempDiff();
 	// Search
 	
 	void searchMap(const std::string& searchWord);

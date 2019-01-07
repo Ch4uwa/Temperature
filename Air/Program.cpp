@@ -4,7 +4,7 @@
 
 Program::Program()
 {
-
+	
 }
 
 
@@ -13,7 +13,10 @@ void Program::run()
 {
 	const std::string filename{ "tempdata2.csv" };
 	FileIO fileio(filename);
-	printMenu(fileio);
+	//printMenu(fileio);
+	fileio.sortTempDiff();
+	//fileio.printMap();
+	
 }
 
 void Program::printMenu(FileIO& f)
@@ -28,7 +31,7 @@ void Program::printMenu(FileIO& f)
 			<< "> 1. Search date\n"
 			<< "> 2. Print Info\n" // highest temp diff inside outside, hottest -> coldest day, dryest -> wet day, lowest -> highest mold risk.
 			<< "> 3. Winter Date\n"
-			<< "> 4. Autumn Date\n"
+			<< "> 4. Autumn Date\n" // första dagen.
 			<< "> 5. Warnings\n"
 			<< "> 0. Quit\n";
 
@@ -44,11 +47,9 @@ void Program::printMenu(FileIO& f)
 
 			break;
 		case 2:
-			LOG("> Print Sort\n> 1. High to Low temp\n> 2. humid\n> 3. moldLevel\n");
+			LOG("Print Sort\n> 1. High to Low temp\n> 2. humid\n> 3. moldLevel\n");
 			sortBy = input();
 			f.sortInside(sortBy);
-			f.printMap();
-
 			break;
 		case 3:
 			LOG("Winter");
@@ -62,8 +63,8 @@ void Program::printMenu(FileIO& f)
 			LOG("Warnings");
 			std::cout << ">  Show warnings\n"
 				<< "> 1. All\n"
-				<< "> 2. Inside\n"
-				<< "> 3. Outside\n";
+				<< "> 2. Inside average\n"
+				<< "> 3. Outside average\n";
 			switch (input())
 			{
 			case 1:
@@ -77,6 +78,7 @@ void Program::printMenu(FileIO& f)
 				f.printV(true, false, true);
 				break;
 			default:
+				LOG("Not a valid choice!");
 				break;
 			}
 			break;
@@ -116,7 +118,6 @@ int Program::input()
 		std::cerr << "<ERROR> Input numeric value.\n";
 		std::cout << "> ";
 	}
-
 	return choice;
 }
 

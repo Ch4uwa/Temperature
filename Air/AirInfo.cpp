@@ -31,18 +31,18 @@ std::string AirInfo::toString()const
 	std::stringstream info;
 	if (getMoldWarning())
 	{
-		info << "==============================\n"
-			<< "Warning! Mold risk "
+		info << "\n> ==============================\n"
+			<< "> Warning! Mold risk "
 			<< std::fixed << std::setprecision(1)
-			<< this->riskLevel << "\n";
+			<< this->riskLevel;
 	}
-	info << "=============================="
-		<< "\nPlacement: " << this->place
-		<< "\nDate: " << this->date
-		<< "\nTime: " << this->time
-		<< "\nTemperature: " << this->temperature << " Celsius"
-		<< "\nHumidity: " << this->humidity << " %\n"
-		<< "==============================\n";
+	info << "\n> =============================="
+		<< "\n> Placement: " << this->place
+		<< "\n> Date: " << this->date
+		<< "\n> Time: " << this->time
+		<< "\n> Temperature: " << this->temperature << " Celsius"
+		<< "\n> Humidity: " << this->humidity << " %\n"
+		<< "> ==============================";
 	return info.str();
 }
 
@@ -51,17 +51,17 @@ std::string AirInfo::avgToString() const
 	std::stringstream info;
 	if (getMoldWarning())
 	{
-		info << "==============================\n"
-			<< "Warning! Mold risk "
+		info << "\n> ==============================\n"
+			<< "> Warning! Mold risk "
 			<< std::fixed << std::setprecision(1)
-			<< this->riskLevel << "\n";
+			<< this->riskLevel;
 	}
-	info << "\n=============================="
-		<< "\nPlacement: " << this->place
-		<< "\nDate: " << this->date
-		<< "\nAverage Temperature: " << std::fixed << std::setprecision(1) << this->avgTemperature << " Celsius"
-		<< "\nAverage Humidity: " << std::fixed << std::setprecision(1) << this->avgHumidity << " %\n"
-		<< "==============================\n";
+	info << "\n> =============================="
+		<< "\n> Placement: " << this->place
+		<< "\n> Date: " << this->date
+		<< "\n> Average Temperature: " << std::fixed << std::setprecision(1) << this->avgTemperature << " Celsius"
+		<< "\n> Average Humidity: " << std::fixed << std::setprecision(1) << this->avgHumidity << " %\n"
+		<< "> ==============================";
 
 	return info.str();
 }

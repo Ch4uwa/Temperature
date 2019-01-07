@@ -48,6 +48,7 @@ FileIO::~FileIO()
 {
 }
 
+
 // Make average values
 void FileIO::avgVals(std::vector<AirInfo>& fromVec, std::vector<AirInfo>& toVec)
 {
@@ -92,6 +93,32 @@ void FileIO::avgVals(std::vector<AirInfo>& fromVec, std::vector<AirInfo>& toVec)
 }
 
 //Sort
+// TODO Sort by temp diff inside outside
+// TODO sort by door open time
+/*
+	inside temp - outside temp > inside temp outside temp
+*/
+
+void FileIO::sortTempDiff()
+{
+	auto it = vInsideAvgInfo.begin();
+	auto oit = vOutsideAvgInfo.begin();
+	auto itend = vInsideAvgInfo.end();
+	auto oitend = vOutsideAvgInfo.end();
+
+	for (; it != itend; it++, oit++)
+	{
+		it->setDiff((it->getAvgTemp() - oit->getAvgTemp()));
+		oit->setDiff((it->getAvgTemp() - oit->getAvgTemp()));
+		LOG("\n" << it->getDate() << " " << oit->getDate());
+		LOG("\nTEMP: " << it->getAvgTemp() << " " << oit->getAvgTemp()
+			<< "\nTEMPDIFF: " << it->getTempDiff() << " " << oit->getTempDiff());
+	}
+}
+
+
+
+
 void FileIO::sortInside(int sortBy)
 {
 	auto it = vInsideAvgInfo.begin();
@@ -145,13 +172,13 @@ void FileIO::sortOutside(int sortBy)
 				return lhs.getRiskLevel() > rhs.getRiskLevel();
 			});
 		break;
+
 	}
 }
 
 
-// Search TODO 
 
-
+// Search TODO choose inside or outside, Move print to function
 void FileIO::searchMap(const std::string & searchWord)
 {
 	auto itr = myMap.equal_range(searchWord);
@@ -160,18 +187,21 @@ void FileIO::searchMap(const std::string & searchWord)
 }
 
 
-
 // Print function
-
-
-void FileIO::printMap()
+void FileIO::printMap() // Prints everything inside the map
 {
 	for (const auto& n : myMap)
 	{
-		LOG(n.second.avgToString());
+		auto itr = myMap.equal_range(n.second.getDate());
+		for (auto it = itr.first; it != itr.second; it++)
+		{
+		}
+		std::cout << n.second.avgToString();
 	}
 }
 
+// bool avg sets average values(true) or all values(false), 
+// bool in sets inside(true) or outside(false), bool warnings sets warnings true false
 void FileIO::printV(bool avg, bool in, bool warnings) // Print Vector
 {
 	if (avg)
@@ -216,7 +246,7 @@ void FileIO::printV(bool avg, bool in, bool warnings) // Print Vector
 	}
 }
 
-// Metrology Winter Autumn
+// Metrology Winter(false) Autumn(true)
 std::string FileIO::getMetro(bool Autumn)const
 {
 	const int days{ 5 }, wTemp{ 0 }, aTemp{ 10 };
@@ -242,7 +272,7 @@ std::string FileIO::getMetro(bool Autumn)const
 			aDays++;
 		}
 	}
-	return (Autumn ? aDays : wDays) == days ? vOutsideAvgInfo[--i].avgToString() : "Not yet!\n";
+	return (Autumn ? aDays : wDays) == days ? vOutsideAvgInfo[i - 5].avgToString() : "Not yet!\n";
 }
 
 
