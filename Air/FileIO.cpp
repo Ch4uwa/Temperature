@@ -11,7 +11,11 @@ FileIO::FileIO(const std::string& filename)
 	myMapOutside.reserve(150001);
 	myMapAvg.reserve(401);
 
+	char LocalBuffer[4096]; // buffer
 	std::ifstream inFile(filename);
+	inFile.rdbuf()->pubsetbuf(LocalBuffer, 4096);
+
+
 	if (inFile)
 	{
 		std::string file{};
