@@ -4,11 +4,13 @@
 // Constructor
 FileIO::FileIO(const std::string& filename)
 {
-	vInfoInside.reserve(vReserveAmount);
-	vInfoOutside.reserve(vReserveAmount);
 	vInsideAvgInfo.reserve(vReserveAmountSplit);
 	vOutsideAvgInfo.reserve(vReserveAmountSplit);
-	myMap.reserve(401);
+	// 350003
+	myMapInside.reserve(150001);
+	myMapOutside.reserve(150001);
+	myMapAvg.reserve(401);
+
 	std::ifstream inFile(filename);
 	if (inFile)
 	{
@@ -18,25 +20,25 @@ FileIO::FileIO(const std::string& filename)
 			if (file.find("Inne") != std::string::npos)
 			{
 				AirInfo airinfo(file);
-				vInfoInside.emplace_back(airinfo);
+				myMapInside.emplace(std::make_pair(airinfo.getDate(), airinfo));
 				countIn++;
 			}
 			else
 			{
 				AirInfo airinfo(file);
-				vInfoOutside.emplace_back(airinfo);
+				myMapOutside.emplace(std::make_pair(airinfo.getDate(), airinfo));
 				countOut++;
 			}
 		}
 		inFile.close();
 		std::cout << "Done Reading " << countIn + countOut << " Rows, From " << filename << "\n";
 		std::cout << "Running avgVals.\n";
-		avgVals(vInfoInside, vInsideAvgInfo);
+		avgVals(myMapInside, vInsideAvgInfo);
 		std::cout << "Done making average values.\n"
-			<< vInsideAvgInfo.size() << " Days from inside sensor\n";
-		avgVals(vInfoOutside, vOutsideAvgInfo);
+			<< myMapInside.size() << " Days from inside sensor\n" << vInsideAvgInfo.size();
+		avgVals(myMapOutside, vOutsideAvgInfo);
 		std::cout << "Done making average values.\n"
-			<< vOutsideAvgInfo.size() << " Days from outside sensor\n" << myMap.size();
+			<< myMapOutside.size() << " Days from outside sensor\n" << vOutsideAvgInfo.size();
 	}
 	else
 	{
@@ -48,58 +50,34 @@ FileIO::~FileIO()
 {
 }
 
-
 // Make average values
-void FileIO::avgVals(std::vector<AirInfo>& fromVec, std::vector<AirInfo>& toVec)
+void FileIO::avgVals(std::unordered_multimap<std::string, AirInfo>& Map, std::vector<AirInfo>& toVec)
 {
-	std::string d{};
-	std::string p{};
-	int count{};
-	double h{};
-	double t{};
-	auto itr = fromVec.begin();
-	auto next = itr + 1;
-
-	for (; itr != fromVec.end(); ++itr)
+	auto i = Map.begin();
+	do
 	{
-		if (itr->getDate() != next->getDate())
+		double tempTemp{};
+		double humidTemp{};
+		auto itr = Map.equal_range(i->second.getDate());
+		auto it = itr.first;
+		for (; it != itr.second; it++)
 		{
-			d = next->getDate();
-			p = next->getPlace();
-			h = h / count;
-			t = t / count;
-			AirInfo airinfo(d, p, t, h);
-			toVec.emplace_back(airinfo);
-			myMap.insert(std::make_pair(d, AirInfo(d, p, t, h)));
-			next = itr;
-			count = 0;
-			h = 0;
-			t = 0;
+			humidTemp += (it->second.getHumidity());
+			tempTemp += (it->second.getTemp());
 		}
-		if (itr->getDate() == next->getDate())
-		{
-			count++;
-			h += itr->getHumidity();
-			t += itr->getTemp();
-		}
-	}
-	d = next->getDate();
-	p = next->getPlace();
-	h = h / count;
-	t = t / count;
-	AirInfo airinfo(d, p, t, h);
-	toVec.emplace_back(airinfo);
-	myMap.insert(std::make_pair(d, AirInfo(d, p, t, h)));
+		humidTemp = humidTemp / Map.count(i->second.getDate());
+		tempTemp = tempTemp / Map.count(i->second.getDate());
+		toVec.emplace_back(i->second.getDate(), i->second.getPlace(), tempTemp, humidTemp);
+		i = itr.second;
+	} while (i != Map.end());
+	tempDiff();
 }
 
 //Sort
 // TODO Sort by temp diff inside outside
 // TODO sort by door open time
-/*
-	inside temp - outside temp > inside temp outside temp
-*/
 
-void FileIO::sortTempDiff()
+void FileIO::tempDiff()
 {
 	auto it = vInsideAvgInfo.begin();
 	auto oit = vOutsideAvgInfo.begin();
@@ -110,13 +88,8 @@ void FileIO::sortTempDiff()
 	{
 		it->setDiff((it->getAvgTemp() - oit->getAvgTemp()));
 		oit->setDiff((it->getAvgTemp() - oit->getAvgTemp()));
-		LOG("\n" << it->getDate() << " " << oit->getDate());
-		LOG("\nTEMP: " << it->getAvgTemp() << " " << oit->getAvgTemp()
-			<< "\nTEMPDIFF: " << it->getTempDiff() << " " << oit->getTempDiff());
 	}
 }
-
-
 
 
 void FileIO::sortInside(int sortBy)
@@ -126,27 +99,33 @@ void FileIO::sortInside(int sortBy)
 
 	switch (sortBy)
 	{
-	case 1:
+	case 1: // Sort by avg temperature
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getAvgTemp() > rhs.getAvgTemp();
 			});
 		break;
-	case 2:
+	case 2: // Sort by avg humidity
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getAvgHumid() > rhs.getAvgHumid();
 			});
 		break;
-	case 3:
+	case 3: // Sort by avg moldrisk
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getRiskLevel() > rhs.getRiskLevel();
 			});
 		break;
+	case 4:
+		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+			{
+				return lhs.getTempDiff() > rhs.getTempDiff();
+			});
+		break;
 	}
-
 }
+
 void FileIO::sortOutside(int sortBy)
 {
 	auto it = vOutsideAvgInfo.begin();
@@ -172,31 +151,33 @@ void FileIO::sortOutside(int sortBy)
 				return lhs.getRiskLevel() > rhs.getRiskLevel();
 			});
 		break;
-
+	case 4:
+		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+			{
+				return lhs.getTempDiff() > rhs.getTempDiff();
+			});
+		break;
 	}
 }
-
-
 
 // Search TODO choose inside or outside, Move print to function
 void FileIO::searchMap(const std::string & searchWord)
 {
-	auto itr = myMap.equal_range(searchWord);
+	auto itr = myMapInside.equal_range(searchWord);
 	for (auto it = itr.first; it != itr.second; it++)
 		LOG(it->first << "\n" << it->second.avgToString());
 }
 
-
 // Print function
 void FileIO::printMap() // Prints everything inside the map
 {
-	for (const auto& n : myMap)
+	for (const auto& n : myMapInside)
 	{
-		auto itr = myMap.equal_range(n.second.getDate());
+		auto itr = myMapInside.equal_range(n.second.getDate());
 		for (auto it = itr.first; it != itr.second; it++)
 		{
 		}
-		std::cout << n.second.avgToString();
+		std::cout << n.second.toString();
 	}
 }
 
@@ -224,7 +205,7 @@ void FileIO::printV(bool avg, bool in, bool warnings) // Print Vector
 			}
 		}
 	}
-	else
+	/*else
 	{
 		if (warnings)
 		{
@@ -243,7 +224,7 @@ void FileIO::printV(bool avg, bool in, bool warnings) // Print Vector
 				std::cout << ele.toString();
 			}
 		}
-	}
+	}*/
 }
 
 // Metrology Winter(false) Autumn(true)

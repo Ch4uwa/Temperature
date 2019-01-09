@@ -14,7 +14,7 @@ void Program::run()
 	const std::string filename{ "tempdata2.csv" };
 	FileIO fileio(filename);
 	//printMenu(fileio);
-	fileio.sortTempDiff();
+	//fileio.sortTempDiff();
 	//fileio.printMap();
 	
 }

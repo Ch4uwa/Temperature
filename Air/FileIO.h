@@ -10,12 +10,14 @@ private:
 	const int vReserveAmount{ 350000 };
 	const int vReserveAmountSplit{ 200 };
 	int countIn{}, countOut{};
-	std::vector<AirInfo> vInfoInside;
-	std::vector<AirInfo> vInfoOutside;
+	//std::vector<AirInfo> vInfoInside;
+	//std::vector<AirInfo> vInfoOutside;
 	std::vector<AirInfo> vInsideAvgInfo;
 	std::vector<AirInfo> vOutsideAvgInfo;
 
-	std::unordered_multimap<std::string, AirInfo> myMap;
+	std::unordered_multimap<std::string, AirInfo> myMapAvg;
+	std::unordered_multimap<std::string, AirInfo> myMapInside;
+	std::unordered_multimap<std::string, AirInfo> myMapOutside;
 public:
 	FileIO(const std::string&);
 	~FileIO();
@@ -26,14 +28,14 @@ public:
 
 	*/
 
-	void avgVals(std::vector<AirInfo>& fromVec, std::vector<AirInfo>& toVec);
+	void avgVals(std::unordered_multimap<std::string, AirInfo>& myMap, std::vector<AirInfo>& toVec);
 	std::string getMetro(bool Autumn)const;
 
 	// Sort Method TODO Sort by biggest temp diff
 	void sortInside(int sortBy);
 	void sortOutside(int sortBy);
 
-	void sortTempDiff();
+	void tempDiff();
 	// Search
 	
 	void searchMap(const std::string& searchWord);
