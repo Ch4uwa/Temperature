@@ -7,7 +7,6 @@
 class FileIO
 {
 private:
-	const int vReserveAmount{ 350000 };
 	const int vReserveAmountSplit{ 200 };
 	int countIn{}, countOut{};
 	//std::vector<AirInfo> vInfoInside;
@@ -15,7 +14,7 @@ private:
 	std::vector<AirInfo> vInsideAvgInfo;
 	std::vector<AirInfo> vOutsideAvgInfo;
 
-	std::unordered_multimap<std::string, AirInfo> myMapAvg;
+	//std::unordered_multimap<std::string, AirInfo> myMapAvg;
 	std::unordered_multimap<std::string, AirInfo> myMapInside;
 	std::unordered_multimap<std::string, AirInfo> myMapOutside;
 public:

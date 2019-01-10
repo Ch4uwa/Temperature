@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "FileIO.h"
+#include <chrono>
 
 // Constructor
 FileIO::FileIO(const std::string& filename)
@@ -9,15 +10,15 @@ FileIO::FileIO(const std::string& filename)
 	// 350003
 	myMapInside.reserve(150001);
 	myMapOutside.reserve(150001);
-	myMapAvg.reserve(401);
+	//myMapAvg.reserve(401);
 
-	char LocalBuffer[4096]; // buffer
-	std::ifstream inFile(filename);
-	inFile.rdbuf()->pubsetbuf(LocalBuffer, 4096);
-
-
+	//char LocalBuffer[512]; // buffer
+	std::ifstream inFile;
+	//inFile.rdbuf()->pubsetbuf(LocalBuffer, 512);
+	inFile.open(filename);
 	if (inFile)
 	{
+		auto time1 = std::chrono::high_resolution_clock::now();
 		std::string file{};
 		while (getline(inFile, file))
 		{
@@ -35,14 +36,28 @@ FileIO::FileIO(const std::string& filename)
 			}
 		}
 		inFile.close();
-		std::cout << "Done Reading " << countIn + countOut << " Rows, From " << filename << "\n";
+		auto elapse1 = std::chrono::high_resolution_clock::now() - time1;
+		long double a = std::chrono::duration_cast<std::chrono::microseconds>(elapse1).count();
+		std::cout << "Done Reading " << a / 1000000.0 << " " << countIn + countOut << " Rows, From " << filename << "\n";
 		std::cout << "Running avgVals.\n";
+		auto time2 = std::chrono::high_resolution_clock::now();
 		avgVals(myMapInside, vInsideAvgInfo);
-		std::cout << "Done making average values.\n"
+		auto elapse2 = std::chrono::high_resolution_clock::now() - time2;
+		auto b = std::chrono::duration_cast<std::chrono::microseconds>(elapse2).count();
+		std::cout << "Done making average values. " << b / 1000000.0 << "\n"
 			<< myMapInside.size() << " Days from inside sensor\n" << vInsideAvgInfo.size();
+		auto time3 = std::chrono::high_resolution_clock::now();
 		avgVals(myMapOutside, vOutsideAvgInfo);
-		std::cout << "Done making average values.\n"
+		auto elapse3 = std::chrono::high_resolution_clock::now() - time3;
+		auto c = std::chrono::duration_cast<std::chrono::microseconds>(elapse3).count();
+		std::cout << "Done making average values. " << c / 1000000.0 << "\n"
 			<< myMapOutside.size() << " Days from outside sensor\n" << vOutsideAvgInfo.size();
+		LOG("Calculating diff");
+		auto time4 = std::chrono::high_resolution_clock::now();
+		tempDiff();
+		auto elapse4 = std::chrono::high_resolution_clock::now() - time4;
+		auto d = std::chrono::duration_cast<std::chrono::microseconds>(elapse4).count();
+		LOG("Diff Done " << d / 1000000.0);
 	}
 	else
 	{
@@ -57,7 +72,7 @@ FileIO::~FileIO()
 // Make average values
 void FileIO::avgVals(std::unordered_multimap<std::string, AirInfo>& Map, std::vector<AirInfo>& toVec)
 {
-	auto i = Map.begin();
+	auto i = Map.find("2016-05-31");
 	do
 	{
 		double tempTemp{};
@@ -71,14 +86,22 @@ void FileIO::avgVals(std::unordered_multimap<std::string, AirInfo>& Map, std::ve
 		}
 		humidTemp = humidTemp / Map.count(i->second.getDate());
 		tempTemp = tempTemp / Map.count(i->second.getDate());
-		toVec.emplace_back(i->second.getDate(), i->second.getPlace(), tempTemp, humidTemp);
-		i = itr.second;
+		AirInfo airinfo(i->second.getDate(), i->second.getPlace(), tempTemp, humidTemp);
+		toVec.emplace_back(airinfo);
+		if (itr.second != Map.end())
+		{
+			std::advance(i, Map.count(i->second.getDate()));
+		}
+		else
+		{
+			i = Map.end();
+		}
+
 	} while (i != Map.end());
-	tempDiff();
 }
 
 //Sort
-// TODO Sort by temp diff inside outside
+
 // TODO sort by door open time
 
 void FileIO::tempDiff()
@@ -112,7 +135,7 @@ void FileIO::sortInside(int sortBy)
 	case 2: // Sort by avg humidity
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
-				return lhs.getAvgHumid() > rhs.getAvgHumid();
+				return lhs.getAvgHumid() < rhs.getAvgHumid();
 			});
 		break;
 	case 3: // Sort by avg moldrisk
@@ -125,6 +148,12 @@ void FileIO::sortInside(int sortBy)
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getTempDiff() > rhs.getTempDiff();
+			});
+		break;
+	case 5:
+		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
+			{
+				return lhs.getDate() < rhs.getDate();
 			});
 		break;
 	}
@@ -146,7 +175,7 @@ void FileIO::sortOutside(int sortBy)
 	case 2:
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
-				return lhs.getAvgHumid() > rhs.getAvgHumid();
+				return lhs.getAvgHumid() < rhs.getAvgHumid();
 			});
 		break;
 	case 3:
@@ -161,10 +190,17 @@ void FileIO::sortOutside(int sortBy)
 				return lhs.getTempDiff() > rhs.getTempDiff();
 			});
 		break;
+	case 5:
+		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
+			{
+				return lhs.getDate() < rhs.getDate();
+			});
+		break;
 	}
 }
 
 // Search TODO choose inside or outside, Move print to function
+// TODO Search
 void FileIO::searchMap(const std::string & searchWord)
 {
 	auto itr = myMapInside.equal_range(searchWord);
@@ -175,15 +211,28 @@ void FileIO::searchMap(const std::string & searchWord)
 // Print function
 void FileIO::printMap() // Prints everything inside the map
 {
-	for (const auto& n : myMapInside)
+	/*for (const auto& n : myMapInside)
 	{
 		auto itr = myMapInside.equal_range(n.second.getDate());
 		for (auto it = itr.first; it != itr.second; it++)
 		{
 		}
 		std::cout << n.second.toString();
+	}*/
+	/*auto itr = vInsideAvgInfo.begin();
+	if (std::is_sorted(itr, vInsideAvgInfo.end(), [&](const AirInfo& lhs, const AirInfo& rhs)
+		{
+			return (lhs.getDate() < rhs.getDate());
+		}));*/
+	
+	for (int i = 0; i < 5; i++)
+	{
+		LOG(vInsideAvgInfo[i].avgToString());
 	}
 }
+
+//TODO Search vec.
+
 
 // bool avg sets average values(true) or all values(false), 
 // bool in sets inside(true) or outside(false), bool warnings sets warnings true false
@@ -209,26 +258,6 @@ void FileIO::printV(bool avg, bool in, bool warnings) // Print Vector
 			}
 		}
 	}
-	/*else
-	{
-		if (warnings)
-		{
-			for (const auto& ele : in ? vInfoInside : vInfoOutside)
-			{
-				if (ele.getRiskLevel() > 0)
-				{
-					ele.toString();
-				}
-			}
-		}
-		else
-		{
-			for (const auto& ele : in ? vInfoInside : vInfoOutside)
-			{
-				std::cout << ele.toString();
-			}
-		}
-	}*/
 }
 
 // Metrology Winter(false) Autumn(true)

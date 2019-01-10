@@ -13,9 +13,7 @@ void Program::run()
 {
 	const std::string filename{ "tempdata2.csv" };
 	FileIO fileio(filename);
-	//printMenu(fileio);
-	//fileio.sortTempDiff();
-	//fileio.printMap();
+	printMenu(fileio);
 	
 }
 
@@ -29,7 +27,7 @@ void Program::printMenu(FileIO& f)
 		// Open door, how long and when loongest.
 		std::cout << "> MENU\n"
 			<< "> 1. Search date\n"
-			<< "> 2. Print Info\n" // highest temp diff inside outside, hottest -> coldest day, dryest -> wet day, lowest -> highest mold risk.
+			<< "> 2. Sort\n" // highest temp diff inside outside, hottest -> coldest day, dryest -> wet day, lowest -> highest mold risk.
 			<< "> 3. Winter Date\n"
 			<< "> 4. Autumn Date\n" // första dagen.
 			<< "> 5. Warnings\n"
@@ -42,12 +40,11 @@ void Program::printMenu(FileIO& f)
 			std::cout << "> Enter date to search for\n"
 				<< "> 'yyyy-mm-dd'\n> ";
 			std::cin >> date;
-
-			f.searchMap(date);
+			f.printMap();
 
 			break;
 		case 2:
-			LOG("Print Sort\n> 1. High to Low temp\n> 2. humid\n> 3. moldLevel\n");
+			LOG("Sort\n> 1. Temp\n> 2. Humid\n> 3. Mold index\n> 4. Diff\n> 5. Date");
 			sortBy = input();
 			f.sortInside(sortBy);
 			break;

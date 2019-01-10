@@ -85,6 +85,7 @@ void AirInfo::AvgMoldLevel()
 {
 	auto moldRH = -0.0015*pow(this->avgTemperature, 3) +
 		0.1193*pow(this->avgTemperature, 2) - 2.9878*this->avgTemperature + 102.96;
+
 	this->riskLevel = static_cast<int>(this->avgHumidity - moldRH);
 }
 
