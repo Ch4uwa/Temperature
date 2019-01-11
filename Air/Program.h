@@ -11,7 +11,6 @@ public:
 
 	void run();
 	void printMenu(FileIO& f);
-	void subMenu(int & caseNr);
 	int input();
 	
 };

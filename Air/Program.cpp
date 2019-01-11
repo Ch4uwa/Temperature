@@ -4,10 +4,7 @@
 
 Program::Program()
 {
-	
 }
-
-
 
 void Program::run()
 {
@@ -30,7 +27,7 @@ void Program::printMenu(FileIO& f)
 			<< "> 2. Sort\n" // highest temp diff inside outside, hottest -> coldest day, dryest -> wet day, lowest -> highest mold risk.
 			<< "> 3. Winter Date\n"
 			<< "> 4. Autumn Date\n" // första dagen.
-			<< "> 5. Warnings\n"
+			<< "> 5. Print\n"
 			<< "> 0. Quit\n";
 
 		switch (input())
@@ -40,8 +37,7 @@ void Program::printMenu(FileIO& f)
 			std::cout << "> Enter date to search for\n"
 				<< "> 'yyyy-mm-dd'\n> ";
 			std::cin >> date;
-			f.printMap();
-
+			
 			break;
 		case 2:
 			LOG("Sort\n> 1. Temp\n> 2. Humid\n> 3. Mold index\n> 4. Diff\n> 5. Date");
@@ -57,27 +53,8 @@ void Program::printMenu(FileIO& f)
 			LOG(f.getMetro(true));
 			break;
 		case 5:
-			LOG("Warnings");
-			std::cout << ">  Show warnings\n"
-				<< "> 1. All\n"
-				<< "> 2. Inside average\n"
-				<< "> 3. Outside average\n";
-			switch (input())
-			{
-			case 1:
-				f.printV(false, true, true);
-				f.printV(false, false, true);
-				break;
-			case 2:
-				f.printV(true, true, true);
-				break;
-			case 3:
-				f.printV(true, false, true);
-				break;
-			default:
-				LOG("Not a valid choice!");
-				break;
-			}
+			LOG("Print");
+			f.printMap();
 			break;
 		case 0:
 			LOG("Quit");
@@ -87,21 +64,6 @@ void Program::printMenu(FileIO& f)
 			break;
 		}
 	} while (!Quit);
-}
-
-void Program::subMenu(int& caseNr)
-{
-	switch (caseNr)
-	{
-	case 1:
-		break;
-	case 2:
-		break;
-	case 0:
-		break;
-	default:
-		break;
-	}
 }
 
 int Program::input()

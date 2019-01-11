@@ -225,14 +225,13 @@ void FileIO::printMap() // Prints everything inside the map
 			return (lhs.getDate() < rhs.getDate());
 		}));*/
 	
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 30; i++)
 	{
 		LOG(vInsideAvgInfo[i].avgToString());
 	}
 }
 
 //TODO Search vec.
-
 
 // bool avg sets average values(true) or all values(false), 
 // bool in sets inside(true) or outside(false), bool warnings sets warnings true false
@@ -269,6 +268,7 @@ std::string FileIO::getMetro(bool Autumn)const
 	// Metro Winter, Autumn
 	for (; (Autumn ? aDays : wDays) < days && i < vOutsideAvgInfo.size(); i++)
 	{
+		// Metro Winter
 		if (!Autumn && (vOutsideAvgInfo[i].getAvgTemp() >= wTemp))
 		{
 			wDays = 0;
@@ -277,6 +277,7 @@ std::string FileIO::getMetro(bool Autumn)const
 		{
 			wDays++;
 		}
+		// Metro Autumn
 		if (Autumn && (vOutsideAvgInfo[i].getAvgTemp() >= aTemp))
 		{
 			aDays = 0;
@@ -288,15 +289,3 @@ std::string FileIO::getMetro(bool Autumn)const
 	}
 	return (Autumn ? aDays : wDays) == days ? vOutsideAvgInfo[i - 5].avgToString() : "Not yet!\n";
 }
-
-
-
-//int FileIO::hash(const std::string& date)
-//{
-//	int hash{};
-//	for (size_t i = 0; i < date.length(); i++)
-//	{
-//		hash += date[i] * (1 + i);
-//	}
-//	return (hash % 199);
-//}
