@@ -28,9 +28,9 @@ std::string AirInfo::toString()const
 	std::stringstream infoFull;
 	if (getMoldWarning())
 	{
-		infoFull << "> ==============================\n"
-			<< "> Warning!" << (this->riskLevel < 10) ? " Mold index above limit <" : " HIGH RISK FOR MOLD! <";
-		infoFull << std::fixed << std::setprecision(1)
+		infoFull << "\n> ==============================\n"
+			<< "> Warning! Mold index above limit <"
+			<< std::fixed << std::setprecision(1)
 			<< this->riskLevel << ">\n";
 	}
 	infoFull << "> =============================="
@@ -48,9 +48,9 @@ std::string AirInfo::avgToString() const
 	std::stringstream infoAvg;
 	if (getMoldWarning())
 	{
-		infoAvg << "> ==============================\n"
-			<< "> Warning!" << (this->riskLevel < 10) ? " Mold index above limit <" : " HIGH RISK FOR MOLD! <";
-		infoAvg << std::fixed << std::setprecision(1)
+		infoAvg << "\n> ==============================\n"
+			<< "> Warning! Mold index above limit <"
+			<< std::fixed << std::setprecision(1)
 			<< this->riskLevel << ">\n";
 	}
 	infoAvg << "> =============================="
@@ -59,7 +59,7 @@ std::string AirInfo::avgToString() const
 		<< "\n> Average Temperature: " << std::fixed << std::setprecision(1) << this->avgTemperature << " Celsius"
 		<< "\n> Average Humidity: " << std::fixed << std::setprecision(1) << this->avgHumidity << " %"
 		<< "\n> Diff " << diff
-		<< "\n> MoldLimit " << riskLevel
+		<< "\n> Mold Index " << riskLevel
 		<< "\n> ==============================\n";
 	return infoAvg.str();
 }
