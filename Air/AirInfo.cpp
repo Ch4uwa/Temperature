@@ -9,12 +9,14 @@ AirInfo::AirInfo(const std::string& date, const std::string& place, const int& h
 	seconds(seconds), temperature(temperature), humidity(humidity)
 {
 	MoldLevel();
+	setMonth();
 }
 
 AirInfo::AirInfo(std::string date, std::string place, double avgTemperature, double avgHumidity)
 	:date(date), place(place), avgTemperature(avgTemperature), avgHumidity(avgHumidity)
 {
 	AvgMoldLevel();
+	setMonth();
 }
 
 AirInfo::~AirInfo()
@@ -27,8 +29,8 @@ std::string AirInfo::toString()const
 	if (getMoldWarning())
 	{
 		infoFull << "> ==============================\n"
-			<< "> Warning! Mold index above limit <"
-			<< std::fixed << std::setprecision(1)
+			<< "> Warning!" << (this->riskLevel < 10) ? " Mold index above limit <" : " HIGH RISK FOR MOLD! <";
+		infoFull << std::fixed << std::setprecision(1)
 			<< this->riskLevel << ">\n";
 	}
 	infoFull << "> =============================="
@@ -47,8 +49,8 @@ std::string AirInfo::avgToString() const
 	if (getMoldWarning())
 	{
 		infoAvg << "> ==============================\n"
-			<< "> Warning! Mold index above limit <"
-			<< std::fixed << std::setprecision(1)
+			<< "> Warning!" << (this->riskLevel < 10) ? " Mold index above limit <" : " HIGH RISK FOR MOLD! <";
+		infoAvg << std::fixed << std::setprecision(1)
 			<< this->riskLevel << ">\n";
 	}
 	infoAvg << "> =============================="

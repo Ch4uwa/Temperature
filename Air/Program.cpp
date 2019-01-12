@@ -20,7 +20,8 @@ void Program::printMenu(FileIO& f)
 	
 	do
 	{
-		LOG(f.getMetro());
+		LOG(f.metroWinter());
+		LOG(f.metroAutumn());
 		// Open door, how long and when loongest.
 		std::cout << "> MENU\n"
 			<< "> 1. Search date\n"
@@ -60,13 +61,12 @@ void Program::printMenu(FileIO& f)
 		case 2: // TODO Make this the print by instead of sort by.
 			std::cout << "Sort\n> 1. Highest -> Lowest Temperature\n> 2. Lowest -> Highest Humidity\n"
 				<< "> 3. Lowest -> Highest Moldrisk\n > 4. Highest -> Lowest Temperature Difference\n"
-				<< "> 5. Date by order\n";
+				<< "> 5. Order by Date\n";
 			sortBy = input();
 			if (sortBy == 4)
 			{
 				f.sortInside(sortBy);
 				f.sortOutside(sortBy);
-
 			}
 			std::cout << "> Sort\n> 1. Inside data\n> 2. Outside data\n";
 			switch (input())
@@ -83,11 +83,11 @@ void Program::printMenu(FileIO& f)
 			break;
 		case 3:
 			LOG("Winter");
-			LOG(f.getMetro(false));
+			LOG(f.metroWinter());
 			break;
 		case 4:
 			LOG("Autumn");
-			LOG(f.getMetro(true));
+			LOG(f.metroAutumn());
 			break;
 		case 5:
 			LOG("Print");

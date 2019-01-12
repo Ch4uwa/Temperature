@@ -1,10 +1,14 @@
 #ifndef AIRINFO_H
 #define AIRINFO_H
+#include "pch.h"
+
 
 class AirInfo
 {
 private:
 	std::string date;
+	int month{};
+	int day{};
 	std::string place;
 	std::string time{};
 	double temperature;
@@ -20,7 +24,16 @@ private:
 
 	int dryInside{ 30 };
 	int riskLevel{};
-
+	inline void setMonth()
+	{
+		std::string holder;
+		std::stringstream ss(date);
+		getline(ss, holder, '-');
+		getline(ss, holder, '-');
+		this->month = stoi(holder);
+		getline(ss, holder);
+		this->day = stoi(holder);
+	}
 	void MoldLevel();
 	void AvgMoldLevel();
 public:
@@ -48,14 +61,15 @@ public:
 	inline const std::string getPlace()const { return this->place; }
 	inline const int getHumidity()const { return this->humidity; }
 	inline const double getTemp()const { return this->temperature; }
-	inline double getAvgTemp()const { return this->avgTemperature; }
-	inline double getAvgHumid()const { return this->avgHumidity; }
-	inline double getTempDiff()const { return this->diff; }
-	inline int getRiskLevel()const { return this->riskLevel; }
-	inline int getHour() { return this->hour; }
-	inline int getMinute() { return this->minute; }
-	inline int getSeconds() { return this->seconds; }
-
+	inline const double getAvgTemp()const { return this->avgTemperature; }
+	inline const double getAvgHumid()const { return this->avgHumidity; }
+	inline const double getTempDiff()const { return this->diff; }
+	inline const int getRiskLevel()const { return this->riskLevel; }
+	inline const int getHour()const { return this->hour; }
+	inline const int getMinute()const { return this->minute; }
+	inline const int getSeconds()const { return this->seconds; }
+	inline const int getMonth()const { return this->month; }
+	inline const int getDay()const { return this->day; }
 };
 
 #endif // !AIRINFO_H

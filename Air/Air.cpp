@@ -7,16 +7,19 @@
 
 int main()
 {
+
+	
+
 	Program p;
 	p.run();
-	
-	//TODO Search avg value.
+	/*double temp{}, humid{};
+	while (std::cin >> temp >> humid)
+	{
 
-
-	/*
-		calc shit
-
-	*/
+		auto moldRH = -0.0015*pow(temp, 3) +
+			0.1193*pow(temp, 2) - 2.9878*temp + 102.96;
+		LOG(moldRH <<"----"<< humid - moldRH);
+	}*/
 
 
 	/*double c{};
@@ -24,19 +27,19 @@ int main()
 	double T2{ 20 };
 	double RFlim{};
 	double RF1lim{};
-	double RF{80};
+	double RF{ 80 };
 
 
-	RFlim = (-0.0015*pow(T2, 3)) + (0.1193*pow(T2, 2)) - 2.9878*T2 + 102.96;
-	LOG(95-RFlim);*/
-	/*while (std::cin >> T2)
+	while (std::cin >> T2)
 	{
 
+		RFlim = (-0.0015*pow(T2, 3)) + (0.1193*pow(T2, 2)) - 2.9878*T2 + 102.96;
+		LOG(100 - RFlim);
 		c = (RF - 105) / (pow(T1, 2) - 54 * T1);
 		RF1lim = 105 + c * (pow(T2, 2) - 54 * T2);
 
 
-		LOG("RF "<<RF << " RFlim " << RFlim << " RF1lim " << RF1lim << " c " << c);
+		LOG("RF " << RF << " RFlim " << RFlim << " RF1lim " << RF1lim << " c " << c);
 	}*/
 
 	// Binary search

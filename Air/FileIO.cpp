@@ -12,11 +12,11 @@ FileIO::FileIO(const std::string& filename)
 	//myMapAvg.reserve(401);
 
 
+	auto time1 = CSTART;
 	std::ifstream inFile(filename);
 
 	if (inFile)
 	{
-		auto time1 = std::chrono::high_resolution_clock::now();
 		std::string holder{};
 		std::string date{};
 		std::string place{};
@@ -61,10 +61,10 @@ FileIO::FileIO(const std::string& filename)
 
 		tempDiff();
 
-		auto elapse4 = std::chrono::high_resolution_clock::now() - time1;
-		auto d = std::chrono::duration_cast<std::chrono::microseconds>(elapse4).count() / divider;
+		auto end = CSTART;
+		auto durStartUp = CDURATION(end - time1);
 
-		LOG("Time: " << (d)) << "\n";
+		LOG("Time taken: " << (durStartUp) << " microseconds\n");
 
 	}
 	else
@@ -135,6 +135,7 @@ void FileIO::tempDiff()
 // using stable sort from std lib, using mergesort.
 void FileIO::sortInside(int sortBy)
 {
+	auto start = CSTART;
 	auto it = vInsideAvgInfo.begin();
 	auto itend = vInsideAvgInfo.end();
 
@@ -171,10 +172,14 @@ void FileIO::sortInside(int sortBy)
 			});
 		break;
 	}
+	auto end = CSTART;
+	auto dur = CDURATION(end - start);
+	LOG("Sort time taken: " << dur << " milliseconds");
 }
 
 void FileIO::sortOutside(int sortBy)
 {
+	auto start = CSTART;
 	auto it = vOutsideAvgInfo.begin();
 	auto itend = vOutsideAvgInfo.end();
 
@@ -211,43 +216,36 @@ void FileIO::sortOutside(int sortBy)
 			});
 		break;
 	}
+	auto end = CSTART;
+	auto dur = CDURATION(end - start);
+	LOG("Sort time taken: " << dur << " milliseconds");
 }
 
 std::string FileIO::binarySearchInside(std::string& search)
 {
 	// Binary search
-	auto a = std::chrono::high_resolution_clock::now();
 
-
-
-
-
-	auto elapse = std::chrono::high_resolution_clock::now() - a;
-	auto d = std::chrono::duration_cast<std::chrono::microseconds>(elapse).count() / divider;
 	return std::string();
 }
 
 std::string FileIO::binarySearchOutside(std::string& search)
 {
-	auto a = std::chrono::high_resolution_clock::now();
 
-
-
-
-
-	auto elapse = std::chrono::high_resolution_clock::now() - a;
-	auto d = std::chrono::duration_cast<std::chrono::microseconds>(elapse).count() / divider;
 	return std::string();
 }
 
 std::string FileIO::linearSearchInside(std::string& search)
 {
+	auto start = CSTART;
 	auto it = vInsideAvgInfo.begin();
 
 	while (it != vInsideAvgInfo.end())
 	{
 		if (search == it->getDate())
 		{
+			auto end = CSTART;
+			auto dur = CDURATION(end - start);
+			LOG("Search time taken: " << dur << " milliseconds");
 			return it->avgToString();
 		}
 		it++;
@@ -257,101 +255,76 @@ std::string FileIO::linearSearchInside(std::string& search)
 
 std::string FileIO::linearSearchOutside(std::string& search)
 {
-	auto a = std::chrono::high_resolution_clock::now();
 
-
-
-
-
-	auto elapse = std::chrono::high_resolution_clock::now() - a;
-	auto d = std::chrono::duration_cast<std::chrono::microseconds>(elapse).count() / divider;
 	return std::string();
 }
 
 // Search TODO choose inside or outside, Move print to function
 // TODO Search
-void FileIO::searchMap(const std::string & searchWord)
+void FileIO::searchMapInside(const std::string & searchWord)
 {
 	auto itr = myMapInside.equal_range(searchWord);
 	for (auto it = itr.first; it != itr.second; it++)
 		LOG(it->first << "\n" << it->second.avgToString());
 }
 
-// Print function
-void FileIO::printMap() // Prints everything inside the map
+void FileIO::searchMapOutside(const std::string & searchWord)
 {
-	/*for (const auto& n : myMapInside)
-	{
-		auto itr = myMapInside.equal_range(n.second.getDate());
-		for (auto it = itr.first; it != itr.second; it++)
-		{
-		}
-		std::cout << n.second.toString();
-	}*/
-	/*auto itr = vInsideAvgInfo.begin();
-	if (std::is_sorted(itr, vInsideAvgInfo.end(), [&](const AirInfo& lhs, const AirInfo& rhs)
-		{
-			return (lhs.getDate() < rhs.getDate());
-		}));*/
+	auto itr = myMapOutside.equal_range(searchWord);
+	for (auto it = itr.first; it != itr.second; it++)
+		LOG(it->first << "\n" << it->second.avgToString());
+}
 
+// Print function
+void FileIO::printMap()
+{
 	for (int i = 0; i < 15 && i < vInsideAvgInfo.size(); i++)
 	{
 		LOG(vInsideAvgInfo[i].avgToString() << "\n");
 	}
 	auto iii = vOutsideAvgInfo.end();
-	LOG((iii - 1)->avgToString());
+	LOG("Last ele outside " << (iii - 1)->avgToString());
 }
 
-//TODO Search vec.
 
-// bool avg sets average values(true) or all values(false), 
-// bool in sets inside(true) or outside(false), bool warnings sets warnings true false
-void FileIO::printV(bool avg, bool in, bool warnings) // Print Vector
-{
-	if (avg)
-	{
-		if (warnings&&avg)
-		{
-			for (const auto& ele : in ? vInsideAvgInfo : vOutsideAvgInfo)
-			{
-				if (ele.getRiskLevel() > 0)
-				{
-					ele.toString();
-				}
-			}
-		}
-		else
-		{
-			for (const auto& ele : in ? vInsideAvgInfo : vOutsideAvgInfo)
-			{
-				std::cout << ele.avgToString();
-			}
-		}
-	}
-}
+// Summer = 10 < temp, 5 days in row
+// Spring = 0 < temp < 10, 7 days in row not before 15feb
 // Metrological Winter Autumn (Sweden)
-std::string FileIO::getMetro()const
+std::string FileIO::metroWinter()const
 {
+	// Metro Winter
+	// Winter = temp < 0, 5 days in row
 	const int days{ 5 }, tempLow{ 0 }, tempHigh{ 10 };
-
-	int wDays{}, aDays{}, spDays{}, soDays{};
-	// Metro Winter, Autumn
-	for (auto itr = vOutsideAvgInfo.begin(); wDays < days && aDays < days && itr != vOutsideAvgInfo.end(); itr++)
+	int wDays{}, aDays{};
+	auto itr = vOutsideAvgInfo.begin();
+	for (; wDays < days && itr != vOutsideAvgInfo.end() - 1; itr++)
 	{
-		// Spring = 0 < temp < 10, 7 days in row not before 15feb
-		// Autumn = 0 < tem < 10, 5 days in row not before 1 August
-		if (itr->getAvgTemp() > tempHigh)
-		{
-			soDays++;
-		}
-		if (itr->getAvgTemp() > tempLow && itr->getAvgTemp() < tempHigh)
-		{
-			spDays++;
-			aDays++;
-		}
-		// Summer = 10 < temp, 5 days in row
-		itr->getAvgTemp() < tempHigh && itr->getAvgTemp() > tempLow ? aDays++ : (aDays = 0);
-		// Winter = temp < 0, 5 days in row
-		itr->getAvgTemp() < tempLow ? wDays++ : (wDays = 0);
+		(itr->getAvgTemp() < tempLow) ? wDays++ : wDays = 0;
 	}
+	if (aDays == 5)
+	{
+		std::advance(itr, -5);
+	}
+	return (wDays == 5) ? ("Winter began " + itr->getDate()+"\n") : "Can't calculate Winter\n";
 }
+std::string FileIO::metroAutumn()
+{
+	// Metro Autumn
+	// Autumn = 0 < temp < 10, 5 days in row not before 1 August
+	const int days{ 5 }, tempLow{ 0 }, tempHigh{ 10 };
+	int wDays{}, aDays{};
+	auto itr = vOutsideAvgInfo.begin();
+	for (; aDays < days && itr != vOutsideAvgInfo.end(); itr++)
+	{
+		if (itr->getMonth() > 7)
+		{
+			(itr->getAvgTemp() > tempLow && itr->getAvgTemp() < tempHigh) ? aDays++ : (aDays = 0);
+		}
+	}
+	if (aDays == 5)
+	{
+		std::advance(itr, -5);
+	}
+	return (aDays == 5) ? ("Autumn began " + itr->getDate()+"\n") : "Can't calculate Autumn\n";
+}
+
