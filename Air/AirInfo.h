@@ -1,12 +1,19 @@
-#pragma once
+#ifndef AIRINFO_H
+#define AIRINFO_H
+
+#include "pch.h"
+
 class AirInfo
 {
 private:
-	std::string date{};
+	std::string date;
+	std::string place;
 	std::string time{};
-	std::string place{};
-	double temperature{};
-	int humidity{};
+	double temperature;
+	int humidity;
+	int hour;
+	int minute;
+	int seconds;
 
 	double avgTemperature{};
 	double avgHumidity{};
@@ -19,7 +26,9 @@ private:
 	void MoldLevel();
 	void AvgMoldLevel();
 public:
-	AirInfo(const std::string&);
+	AirInfo(const std::string& date, const std::string& place,const int& hour,
+		const int& minute, const int& seconds,
+		const double& temperature, const int& humidity);
 	AirInfo() :date(""), place(""), avgTemperature(0), avgHumidity(0) {}
 	AirInfo(std::string date, std::string place, double avgTemperature, double avgHumidity);
 
@@ -29,7 +38,7 @@ public:
 	// Methods
 	std::string toString()const;
 	std::string avgToString()const;
-	
+
 	bool getMoldWarning()const;
 
 	inline void setDiff(const double& diff) { this->diff = diff; };
@@ -45,7 +54,9 @@ public:
 	inline double getAvgHumid()const { return this->avgHumidity; }
 	inline double getTempDiff()const { return this->diff; }
 	inline int getRiskLevel()const { return this->riskLevel; }
-
+	inline int getHour() { return this->hour; }
+	inline int getMinute() { return this->minute; }
+	inline int getSeconds() { return this->seconds; }
 
 
 	// y=-0,0015x^3+0,1193x^2-2,9878x+102,96
@@ -68,3 +79,4 @@ public:
 
 };
 
+#endif // !AIRINFO_H

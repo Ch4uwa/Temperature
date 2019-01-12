@@ -2,17 +2,27 @@
 #include "AirInfo.h"
 
 
-AirInfo::AirInfo(const std::string& file)
+AirInfo::AirInfo(const std::string& date, const std::string& place, const int& hour,
+	const int& minute, const int& seconds,
+	const double& temperature, const int& humidity)
+	:date(date), place(place),hour(hour),minute(minute),
+	seconds(seconds),temperature(temperature),humidity(humidity)
 {
-	std::string holder{};
+	/*std::string holder{};
 	std::stringstream ss(file);
 	getline(ss, this->date, ' ');
-	getline(ss, this->time, ',');
+	getline(ss, holder, ':');
+	this->hour = std::stoi(holder);
+	getline(ss, holder, ':');
+	this->minute = std::stoi(holder);
+	getline(ss, holder, ',');
+	this->second = std::stoi(holder);
 	getline(ss, this->place, ',');
 	getline(ss, holder, ',');
 	this->temperature = stod(holder);
 	getline(ss, holder);
-	this->humidity = stoi(holder);
+	this->humidity = stoi(holder);*/
+
 	MoldLevel();
 }
 
@@ -39,7 +49,7 @@ std::string AirInfo::toString()const
 	info << "\n> =============================="
 		<< "\n> Placement: " << this->place
 		<< "\n> Date: " << this->date
-		<< "\n> Time: " << this->time
+		<< "\n> Time: " << this->hour<<":"<<this->minute<<":"<<this->seconds
 		<< "\n> Temperature: " << this->temperature << " Celsius"
 		<< "\n> Humidity: " << this->humidity << " %\n"
 		<< "> ==============================";
@@ -75,6 +85,7 @@ bool AirInfo::getMoldWarning()const
 	}
 	return false;
 }
+
 void AirInfo::MoldLevel()
 {
 	auto moldRH = -0.0015*pow(this->temperature, 3) +

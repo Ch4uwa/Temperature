@@ -9,8 +9,12 @@ class FileIO
 private:
 	const int vReserveAmountSplit{ 200 };
 	int countIn{}, countOut{};
-	//std::vector<AirInfo> vInfoInside;
-	//std::vector<AirInfo> vInfoOutside;
+
+	enum eSortBy
+	{
+		eTEMP = 1, eHUMID, eMOLD, eTEMPDIFF, eDATE
+	};
+
 	std::vector<AirInfo> vInsideAvgInfo;
 	std::vector<AirInfo> vOutsideAvgInfo;
 
@@ -21,12 +25,6 @@ public:
 	FileIO(const std::string&);
 	~FileIO();
 
-	/*
-		is door open
-			temp inside, temp outside diff
-
-	*/
-
 	void avgVals(std::unordered_multimap<std::string, AirInfo>& myMap, std::vector<AirInfo>& toVec);
 	std::string getMetro(bool Autumn)const;
 
@@ -36,7 +34,7 @@ public:
 
 	void tempDiff();
 	// Search
-	
+
 	void searchMap(const std::string& searchWord);
 
 	// Print Method

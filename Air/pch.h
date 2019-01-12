@@ -1,5 +1,6 @@
 #ifndef PCH_H
 #define PCH_H
+// Global includes
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -12,6 +13,8 @@
 #include <unordered_map>
 
 
+// Macros
+#define STREAM_MAX std::numeric_limits<std::streamsize>::max()
 #if 1
 #define LOG(x) std::cout<<"> "<<x<<"\n"
 #else

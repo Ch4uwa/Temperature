@@ -11,7 +11,6 @@ void Program::run()
 	const std::string filename{ "tempdata2.csv" };
 	FileIO fileio(filename);
 	printMenu(fileio);
-	
 }
 
 void Program::printMenu(FileIO& f)
@@ -34,15 +33,47 @@ void Program::printMenu(FileIO& f)
 		{
 		case 1:
 			LOG("Search");
-			std::cout << "> Enter date to search for\n"
-				<< "> 'yyyy-mm-dd'\n> ";
-			std::cin >> date;
-			
+			std::cout << "> Search for\n> 1. Inside data\n> 2. Outside data\n";
+			switch (input())
+			{
+			case 1:
+				std::cout << "> Enter date to search for\n"
+					<< "> 'yyyy-mm-dd'\n> ";
+				std::cin >> date;
+				//TODO add search function for inside
+				break;
+			case 2:
+				std::cout << "> Enter date to search for\n"
+					<< "> 'yyyy-mm-dd'\n> ";
+				std::cin >> date;
+				//TODO add search function for outside
+				break;
+			default:
+				std::cout << "Only (1) or (2) is a valid choice.\n";
+				break;
+			}
 			break;
 		case 2:
-			LOG("Sort\n> 1. Temp\n> 2. Humid\n> 3. Mold index\n> 4. Diff\n> 5. Date");
+			std::cout << "Sort\n> 1. Highest -> Lowest Temperature\n> 2. Lowest -> Highest Humidity\n"
+				<< "> 3. Lowest -> Highest Moldrisk\n > 4. Highest -> Lowest Temperature Difference\n"
+				<< "> 5. Date by order\n";
 			sortBy = input();
-			f.sortInside(sortBy);
+			if (sortBy == 4)
+			{
+
+			}
+			std::cout << "> Sort\n> 1. Inside data\n> 2. Outside data\n";
+			switch (input())
+			{
+			case 1:
+				f.sortInside(sortBy);
+				break;
+			case 2:
+				f.sortOutside(sortBy);
+				break;
+			default:
+				break;
+			}
 			break;
 		case 3:
 			LOG("Winter");
@@ -73,7 +104,7 @@ int Program::input()
 	while (!(std::cin >> choice))
 	{
 		std::cin.clear();
-		std::cin.ignore(INT_MAX, '\n');
+		std::cin.ignore(STREAM_MAX, '\n');
 		std::cerr << "<ERROR> Input numeric value.\n";
 		std::cout << "> ";
 	}

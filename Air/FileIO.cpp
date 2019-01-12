@@ -12,52 +12,88 @@ FileIO::FileIO(const std::string& filename)
 	myMapOutside.reserve(150001);
 	//myMapAvg.reserve(401);
 
-	//char LocalBuffer[512]; // buffer
-	std::ifstream inFile;
-	//inFile.rdbuf()->pubsetbuf(LocalBuffer, 512);
-	inFile.open(filename);
+
+	std::ifstream inFile(filename);
+	double divider{ 1000000.0 };
 	if (inFile)
 	{
 		auto time1 = std::chrono::high_resolution_clock::now();
-		std::string file{};
-		while (getline(inFile, file))
+		std::string holder{};
+		std::string date{};
+		std::string place{};
+		int hour{};
+		int minute{};
+		int seconds{};
+		double temperature{};
+		int humidity{};
+
+		while (!inFile.eof())
 		{
-			if (file.find("Inne") != std::string::npos)
+			getline(inFile, date, ' ');
+			getline(inFile, holder, ':');
+			hour = std::stoi(holder);
+			getline(inFile, holder, ':');
+			minute = std::stoi(holder);
+			getline(inFile, holder, ',');
+			seconds = std::stoi(holder);
+			getline(inFile, place, ',');
+			getline(inFile, holder, ',');
+			temperature = stod(holder);
+			getline(inFile, holder);
+			humidity = stoi(holder);
+
+			if (place == "Inne")
 			{
-				AirInfo airinfo(file);
+				AirInfo airinfo(date, place, hour, minute, seconds, temperature, humidity);
 				myMapInside.emplace(std::make_pair(airinfo.getDate(), airinfo));
 				countIn++;
 			}
 			else
 			{
-				AirInfo airinfo(file);
+				AirInfo airinfo(date, place, hour, minute, seconds, temperature, humidity);
 				myMapOutside.emplace(std::make_pair(airinfo.getDate(), airinfo));
 				countOut++;
 			}
 		}
 		inFile.close();
+
 		auto elapse1 = std::chrono::high_resolution_clock::now() - time1;
-		long double a = std::chrono::duration_cast<std::chrono::microseconds>(elapse1).count();
-		std::cout << "Done Reading " << a / 1000000.0 << " " << countIn + countOut << " Rows, From " << filename << "\n";
+		auto a = std::chrono::duration_cast<std::chrono::microseconds>(elapse1).count() / divider;
+
+		std::cout << "Done Reading! Time: " << (a) << "\n" << countIn + countOut
+			<< " Rows, From " << filename << "\n";
 		std::cout << "Running avgVals.\n";
+
 		auto time2 = std::chrono::high_resolution_clock::now();
+
 		avgVals(myMapInside, vInsideAvgInfo);
+
 		auto elapse2 = std::chrono::high_resolution_clock::now() - time2;
-		auto b = std::chrono::duration_cast<std::chrono::microseconds>(elapse2).count();
-		std::cout << "Done making average values. " << b / 1000000.0 << "\n"
-			<< myMapInside.size() << " Days from inside sensor\n" << vInsideAvgInfo.size();
+		auto b = std::chrono::duration_cast<std::chrono::microseconds>(elapse2).count() / divider;
+
+		std::cout << "Done making average values! Time: " << (b) << "\nInside map size "
+			<< myMapInside.size() << "\nDays from inside sensor " << vInsideAvgInfo.size() << "\n";
+
 		auto time3 = std::chrono::high_resolution_clock::now();
+
 		avgVals(myMapOutside, vOutsideAvgInfo);
+
 		auto elapse3 = std::chrono::high_resolution_clock::now() - time3;
-		auto c = std::chrono::duration_cast<std::chrono::microseconds>(elapse3).count();
-		std::cout << "Done making average values. " << c / 1000000.0 << "\n"
-			<< myMapOutside.size() << " Days from outside sensor\n" << vOutsideAvgInfo.size();
-		LOG("Calculating diff");
+		auto c = std::chrono::duration_cast<std::chrono::microseconds>(elapse3).count() / divider;
+
+		std::cout << "Done making average values! Time: " << (c) << "\n"
+			<< myMapOutside.size() << "\nDays from outside sensor " << vOutsideAvgInfo.size() << "\n";
+		LOG("Calculating diff\n");
+
 		auto time4 = std::chrono::high_resolution_clock::now();
+
 		tempDiff();
+
 		auto elapse4 = std::chrono::high_resolution_clock::now() - time4;
-		auto d = std::chrono::duration_cast<std::chrono::microseconds>(elapse4).count();
-		LOG("Diff Done " << d / 1000000.0);
+		auto d = std::chrono::duration_cast<std::chrono::microseconds>(elapse4).count() / divider;
+
+		LOG("Diff Done! Time: " << (d)) << "\n";
+		LOG("Total time: " << a + b + c + d);
 	}
 	else
 	{
@@ -72,8 +108,8 @@ FileIO::~FileIO()
 // Make average values
 void FileIO::avgVals(std::unordered_multimap<std::string, AirInfo>& Map, std::vector<AirInfo>& toVec)
 {
-	auto i = Map.find("2016-05-31");
-	do
+	auto i = Map.find(Map.begin()->second.getDate());
+	while (i != Map.end())
 	{
 		double tempTemp{};
 		double humidTemp{};
@@ -84,20 +120,24 @@ void FileIO::avgVals(std::unordered_multimap<std::string, AirInfo>& Map, std::ve
 			humidTemp += (it->second.getHumidity());
 			tempTemp += (it->second.getTemp());
 		}
+
 		humidTemp = humidTemp / Map.count(i->second.getDate());
 		tempTemp = tempTemp / Map.count(i->second.getDate());
+
 		AirInfo airinfo(i->second.getDate(), i->second.getPlace(), tempTemp, humidTemp);
 		toVec.emplace_back(airinfo);
+
 		if (itr.second != Map.end())
 		{
 			std::advance(i, Map.count(i->second.getDate()));
 		}
-		else
+		i = it;
+		/*else
 		{
 			i = Map.end();
-		}
+		}*/
 
-	} while (i != Map.end());
+	}
 }
 
 //Sort
@@ -113,12 +153,15 @@ void FileIO::tempDiff()
 
 	for (; it != itend; it++, oit++)
 	{
-		it->setDiff((it->getAvgTemp() - oit->getAvgTemp()));
-		oit->setDiff((it->getAvgTemp() - oit->getAvgTemp()));
+		if (it->getDate() == oit->getDate())
+		{
+			it->setDiff((it->getAvgTemp() - oit->getAvgTemp()));
+			oit->setDiff((it->getAvgTemp() - oit->getAvgTemp()));
+		}
 	}
 }
 
-
+// using stable sort from std lib, using mergesort.
 void FileIO::sortInside(int sortBy)
 {
 	auto it = vInsideAvgInfo.begin();
@@ -126,31 +169,31 @@ void FileIO::sortInside(int sortBy)
 
 	switch (sortBy)
 	{
-	case 1: // Sort by avg temperature
+	case eTEMP:
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getAvgTemp() > rhs.getAvgTemp();
 			});
 		break;
-	case 2: // Sort by avg humidity
+	case eHUMID:
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getAvgHumid() < rhs.getAvgHumid();
 			});
 		break;
-	case 3: // Sort by avg moldrisk
+	case eMOLD:
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getRiskLevel() > rhs.getRiskLevel();
 			});
 		break;
-	case 4:
+	case eTEMPDIFF:
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getTempDiff() > rhs.getTempDiff();
 			});
 		break;
-	case 5:
+	case eDATE:
 		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getDate() < rhs.getDate();
@@ -166,31 +209,31 @@ void FileIO::sortOutside(int sortBy)
 
 	switch (sortBy)
 	{
-	case 1:
+	case eTEMP:
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getAvgTemp() > rhs.getAvgTemp();
 			});
 		break;
-	case 2:
+	case eHUMID:
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getAvgHumid() < rhs.getAvgHumid();
 			});
 		break;
-	case 3:
+	case eMOLD:
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getRiskLevel() > rhs.getRiskLevel();
 			});
 		break;
-	case 4:
+	case eTEMPDIFF:
 		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getTempDiff() > rhs.getTempDiff();
 			});
 		break;
-	case 5:
+	case eDATE:
 		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getDate() < rhs.getDate();
@@ -224,11 +267,13 @@ void FileIO::printMap() // Prints everything inside the map
 		{
 			return (lhs.getDate() < rhs.getDate());
 		}));*/
-	
-	for (int i = 0; i < 30; i++)
+
+	for (int i = 0; i < 15 && i < vInsideAvgInfo.size(); i++)
 	{
-		LOG(vInsideAvgInfo[i].avgToString());
+		LOG(vInsideAvgInfo[i].avgToString() << "\n");
 	}
+	auto iii = vOutsideAvgInfo.end();
+	LOG((iii-1)->avgToString());
 }
 
 //TODO Search vec.
@@ -263,7 +308,7 @@ void FileIO::printV(bool avg, bool in, bool warnings) // Print Vector
 std::string FileIO::getMetro(bool Autumn)const
 {
 	const int days{ 5 }, wTemp{ 0 }, aTemp{ 10 };
-	int i{ 0 };
+	unsigned int i{ 0 };
 	int wDays{}, aDays{};
 	// Metro Winter, Autumn
 	for (; (Autumn ? aDays : wDays) < days && i < vOutsideAvgInfo.size(); i++)
