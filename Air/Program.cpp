@@ -20,6 +20,7 @@ void Program::printMenu(FileIO& f)
 	
 	do
 	{
+		LOG(f.getMetro());
 		// Open door, how long and when loongest.
 		std::cout << "> MENU\n"
 			<< "> 1. Search date\n"

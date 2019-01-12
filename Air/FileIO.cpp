@@ -47,7 +47,7 @@ FileIO::FileIO(const std::string& filename)
 				myMapInside.insert(std::make_pair(airinfo.getDate(), airinfo));
 				countIn++;
 			}
-			else
+			else if (place == "Ute")
 			{
 				AirInfo airinfo(date, place, hour, minute, seconds, temperature, humidity);
 				myMapOutside.insert(std::make_pair(airinfo.getDate(), airinfo));
@@ -329,34 +329,29 @@ void FileIO::printV(bool avg, bool in, bool warnings) // Print Vector
 		}
 	}
 }
-
-// Metrology Winter(false) Autumn(true)
-std::string FileIO::getMetro(bool Autumn)const
+// Metrological Winter Autumn (Sweden)
+std::string FileIO::getMetro()const
 {
-	const int days{ 5 }, wTemp{ 0 }, aTemp{ 10 };
-	unsigned int i{ 0 };
-	int wDays{}, aDays{};
+	const int days{ 5 }, tempLow{ 0 }, tempHigh{ 10 };
+
+	int wDays{}, aDays{}, spDays{}, soDays{};
 	// Metro Winter, Autumn
-	for (; (Autumn ? aDays : wDays) < days && i < vOutsideAvgInfo.size(); i++)
+	for (auto itr = vOutsideAvgInfo.begin(); wDays < days && aDays < days && itr != vOutsideAvgInfo.end(); itr++)
 	{
-		// Metro Winter
-		if (!Autumn && (vOutsideAvgInfo[i].getAvgTemp() >= wTemp))
+		// Spring = 0 < temp < 10, 7 days in row not before 15feb
+		// Autumn = 0 < tem < 10, 5 days in row not before 1 August
+		if (itr->getAvgTemp() > tempHigh)
 		{
-			wDays = 0;
+			soDays++;
 		}
-		if (!Autumn && (vOutsideAvgInfo[i].getAvgTemp() < wTemp))
+		if (itr->getAvgTemp() > tempLow && itr->getAvgTemp() < tempHigh)
 		{
-			wDays++;
-		}
-		// Metro Autumn
-		if (Autumn && (vOutsideAvgInfo[i].getAvgTemp() >= aTemp))
-		{
-			aDays = 0;
-		}
-		if (Autumn && (vOutsideAvgInfo[i].getAvgTemp() < aTemp) && (vOutsideAvgInfo[i].getAvgTemp() > wTemp))
-		{
+			spDays++;
 			aDays++;
 		}
+		// Summer = 10 < temp, 5 days in row
+		itr->getAvgTemp() < tempHigh && itr->getAvgTemp() > tempLow ? aDays++ : (aDays = 0);
+		// Winter = temp < 0, 5 days in row
+		itr->getAvgTemp() < tempLow ? wDays++ : (wDays = 0);
 	}
-	return (Autumn ? aDays : wDays) == days ? vOutsideAvgInfo[i - 5].avgToString() : "Not yet!\n";
 }

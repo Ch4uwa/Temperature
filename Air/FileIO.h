@@ -25,7 +25,7 @@ public:
 	~FileIO();
 
 	void avgVals(std::unordered_multimap<std::string, AirInfo>& myMap, std::vector<AirInfo>& toVec);
-	std::string getMetro(bool Autumn)const;
+	std::string getMetro()const;
 
 	// Sort Method TODO Sort by biggest temp diff
 	void sortInside(int sortBy);
