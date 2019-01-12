@@ -41,13 +41,13 @@ FileIO::FileIO(const std::string& filename)
 			getline(inFile, holder);
 			humidity = stoi(holder);
 
-			if (place == "Inne")
+			if (place == "Inne" && date != "")
 			{
 				AirInfo airinfo(date, place, hour, minute, seconds, temperature, humidity);
 				myMapInside.insert(std::make_pair(airinfo.getDate(), airinfo));
 				countIn++;
 			}
-			else if (place == "Ute")
+			else if (place == "Ute" && date != "")
 			{
 				AirInfo airinfo(date, place, hour, minute, seconds, temperature, humidity);
 				myMapOutside.insert(std::make_pair(airinfo.getDate(), airinfo));
@@ -305,7 +305,7 @@ std::string FileIO::metroWinter()const
 	{
 		std::advance(itr, -5);
 	}
-	return (wDays == 5) ? ("Winter began " + itr->getDate()+"\n") : "Can't calculate Winter\n";
+	return (wDays == 5) ? ("Winter began " + itr->getDate() + "\n") : "Can't calculate Winter\n";
 }
 std::string FileIO::metroAutumn()
 {
@@ -325,6 +325,6 @@ std::string FileIO::metroAutumn()
 	{
 		std::advance(itr, -5);
 	}
-	return (aDays == 5) ? ("Autumn began " + itr->getDate()+"\n") : "Can't calculate Autumn\n";
+	return (aDays == 5) ? ("Autumn began " + itr->getDate() + "\n") : "Can't calculate Autumn\n";
 }
 

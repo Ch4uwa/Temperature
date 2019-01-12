@@ -81,14 +81,6 @@ void Program::printMenu(FileIO& f)
 				break;
 			}
 			break;
-		case 3:
-			LOG("Winter");
-			LOG(f.metroWinter());
-			break;
-		case 4:
-			LOG("Autumn");
-			LOG(f.metroAutumn());
-			break;
 		case 5:
 			LOG("Print");
 			f.printMap();
