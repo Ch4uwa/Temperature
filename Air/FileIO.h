@@ -1,6 +1,5 @@
 #ifndef FILEIO_H
 #define FILEIO_H
-#include "pch.h"
 #include "AirInfo.h"
 
 
@@ -9,7 +8,7 @@ class FileIO
 private:
 	const int vReserveAmountSplit{ 200 };
 	int countIn{}, countOut{};
-
+	double divider{ 1000000.0 };
 	enum eSortBy
 	{
 		eTEMP = 1, eHUMID, eMOLD, eTEMPDIFF, eDATE
@@ -34,7 +33,10 @@ public:
 
 	void tempDiff();
 	// Search
-
+	std::string binarySearchInside(std::string& search);
+	std::string binarySearchOutside(std::string& search);
+	std::string linearSearchInside(std::string& search);
+	std::string linearSearchOutside(std::string& search);
 	void searchMap(const std::string& searchWord);
 
 	// Print Method

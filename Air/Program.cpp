@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Program.h"
-#include "FileIO.h"
 
 Program::Program()
 {
@@ -18,6 +17,7 @@ void Program::printMenu(FileIO& f)
 	std::string date{};
 	int sortBy{};
 	bool Quit = false;
+	
 	do
 	{
 		// Open door, how long and when loongest.
@@ -38,9 +38,12 @@ void Program::printMenu(FileIO& f)
 			{
 			case 1:
 				std::cout << "> Enter date to search for\n"
-					<< "> 'yyyy-mm-dd'\n> ";
+					<< "> 'yyyy-mm-dd'\n> "; // TODO Check for valid date bfor entering function
 				std::cin >> date;
 				//TODO add search function for inside
+				
+				LOG(f.linearSearchInside(date));
+				
 				break;
 			case 2:
 				std::cout << "> Enter date to search for\n"
@@ -53,13 +56,15 @@ void Program::printMenu(FileIO& f)
 				break;
 			}
 			break;
-		case 2:
+		case 2: // TODO Make this the print by instead of sort by.
 			std::cout << "Sort\n> 1. Highest -> Lowest Temperature\n> 2. Lowest -> Highest Humidity\n"
 				<< "> 3. Lowest -> Highest Moldrisk\n > 4. Highest -> Lowest Temperature Difference\n"
 				<< "> 5. Date by order\n";
 			sortBy = input();
 			if (sortBy == 4)
 			{
+				f.sortInside(sortBy);
+				f.sortOutside(sortBy);
 
 			}
 			std::cout << "> Sort\n> 1. Inside data\n> 2. Outside data\n";

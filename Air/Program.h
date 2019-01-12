@@ -1,7 +1,7 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
-
 #include "FileIO.h"
+
 
 class Program
 {
@@ -12,12 +12,8 @@ public:
 	~Program() {};
 
 	void run();
-
 	int input();
-	
 	void printMenu(FileIO& f);
-
-
 };
 
 #endif // !PROGRAM_H

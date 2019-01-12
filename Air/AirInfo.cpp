@@ -5,24 +5,9 @@
 AirInfo::AirInfo(const std::string& date, const std::string& place, const int& hour,
 	const int& minute, const int& seconds,
 	const double& temperature, const int& humidity)
-	:date(date), place(place),hour(hour),minute(minute),
-	seconds(seconds),temperature(temperature),humidity(humidity)
+	:date(date), place(place), hour(hour), minute(minute),
+	seconds(seconds), temperature(temperature), humidity(humidity)
 {
-	/*std::string holder{};
-	std::stringstream ss(file);
-	getline(ss, this->date, ' ');
-	getline(ss, holder, ':');
-	this->hour = std::stoi(holder);
-	getline(ss, holder, ':');
-	this->minute = std::stoi(holder);
-	getline(ss, holder, ',');
-	this->second = std::stoi(holder);
-	getline(ss, this->place, ',');
-	getline(ss, holder, ',');
-	this->temperature = stod(holder);
-	getline(ss, holder);
-	this->humidity = stoi(holder);*/
-
 	MoldLevel();
 }
 
@@ -38,45 +23,46 @@ AirInfo::~AirInfo()
 
 std::string AirInfo::toString()const
 {
-	std::stringstream info;
+	std::stringstream infoFull;
 	if (getMoldWarning())
 	{
-		info << "\n> ==============================\n"
-			<< "> Warning! Mold risk "
+		infoFull << "> ==============================\n"
+			<< "> Warning! Mold index above limit <"
 			<< std::fixed << std::setprecision(1)
-			<< this->riskLevel;
+			<< this->riskLevel << ">\n";
 	}
-	info << "\n> =============================="
+	infoFull << "> =============================="
 		<< "\n> Placement: " << this->place
 		<< "\n> Date: " << this->date
-		<< "\n> Time: " << this->hour<<":"<<this->minute<<":"<<this->seconds
+		<< "\n> Time: " << this->hour << ":" << this->minute << ":" << this->seconds
 		<< "\n> Temperature: " << this->temperature << " Celsius"
-		<< "\n> Humidity: " << this->humidity << " %\n"
-		<< "> ==============================";
-	return info.str();
+		<< "\n> Humidity: " << this->humidity << " %"
+		<< "\n> ==============================\n";
+	return infoFull.str();
 }
 
 std::string AirInfo::avgToString() const
 {
-	std::stringstream info;
+	std::stringstream infoAvg;
 	if (getMoldWarning())
 	{
-		info << "\n> ==============================\n"
-			<< "> Warning! Mold risk "
+		infoAvg << "> ==============================\n"
+			<< "> Warning! Mold index above limit <"
 			<< std::fixed << std::setprecision(1)
-			<< this->riskLevel;
+			<< this->riskLevel << ">\n";
 	}
-	info << "\n> =============================="
+	infoAvg << "> =============================="
 		<< "\n> Placement: " << this->place
 		<< "\n> Date: " << this->date
 		<< "\n> Average Temperature: " << std::fixed << std::setprecision(1) << this->avgTemperature << " Celsius"
-		<< "\n> Average Humidity: " << std::fixed << std::setprecision(1) << this->avgHumidity << " %\n"
-		<< "> ==============================";
-
-	return info.str();
+		<< "\n> Average Humidity: " << std::fixed << std::setprecision(1) << this->avgHumidity << " %"
+		<< "\n> Diff " << diff
+		<< "\n> MoldLimit " << riskLevel
+		<< "\n> ==============================\n";
+	return infoAvg.str();
 }
 
-/* MOLD Methods */
+/* MOLD Method */
 bool AirInfo::getMoldWarning()const
 {
 	if (riskLevel > 0)

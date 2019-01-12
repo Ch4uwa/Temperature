@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "FileIO.h"
-#include <chrono>
 
 // Constructor
 FileIO::FileIO(const std::string& filename)
@@ -14,7 +13,7 @@ FileIO::FileIO(const std::string& filename)
 
 
 	std::ifstream inFile(filename);
-	double divider{ 1000000.0 };
+
 	if (inFile)
 	{
 		auto time1 = std::chrono::high_resolution_clock::now();
@@ -27,9 +26,9 @@ FileIO::FileIO(const std::string& filename)
 		double temperature{};
 		int humidity{};
 
-		while (!inFile.eof())
+		while (getline(inFile, date, ' '))
 		{
-			getline(inFile, date, ' ');
+			//getline(inFile, date, ' ');
 			getline(inFile, holder, ':');
 			hour = std::stoi(holder);
 			getline(inFile, holder, ':');
@@ -45,55 +44,28 @@ FileIO::FileIO(const std::string& filename)
 			if (place == "Inne")
 			{
 				AirInfo airinfo(date, place, hour, minute, seconds, temperature, humidity);
-				myMapInside.emplace(std::make_pair(airinfo.getDate(), airinfo));
+				myMapInside.insert(std::make_pair(airinfo.getDate(), airinfo));
 				countIn++;
 			}
 			else
 			{
 				AirInfo airinfo(date, place, hour, minute, seconds, temperature, humidity);
-				myMapOutside.emplace(std::make_pair(airinfo.getDate(), airinfo));
+				myMapOutside.insert(std::make_pair(airinfo.getDate(), airinfo));
 				countOut++;
 			}
 		}
 		inFile.close();
 
-		auto elapse1 = std::chrono::high_resolution_clock::now() - time1;
-		auto a = std::chrono::duration_cast<std::chrono::microseconds>(elapse1).count() / divider;
-
-		std::cout << "Done Reading! Time: " << (a) << "\n" << countIn + countOut
-			<< " Rows, From " << filename << "\n";
-		std::cout << "Running avgVals.\n";
-
-		auto time2 = std::chrono::high_resolution_clock::now();
-
 		avgVals(myMapInside, vInsideAvgInfo);
-
-		auto elapse2 = std::chrono::high_resolution_clock::now() - time2;
-		auto b = std::chrono::duration_cast<std::chrono::microseconds>(elapse2).count() / divider;
-
-		std::cout << "Done making average values! Time: " << (b) << "\nInside map size "
-			<< myMapInside.size() << "\nDays from inside sensor " << vInsideAvgInfo.size() << "\n";
-
-		auto time3 = std::chrono::high_resolution_clock::now();
-
 		avgVals(myMapOutside, vOutsideAvgInfo);
-
-		auto elapse3 = std::chrono::high_resolution_clock::now() - time3;
-		auto c = std::chrono::duration_cast<std::chrono::microseconds>(elapse3).count() / divider;
-
-		std::cout << "Done making average values! Time: " << (c) << "\n"
-			<< myMapOutside.size() << "\nDays from outside sensor " << vOutsideAvgInfo.size() << "\n";
-		LOG("Calculating diff\n");
-
-		auto time4 = std::chrono::high_resolution_clock::now();
 
 		tempDiff();
 
-		auto elapse4 = std::chrono::high_resolution_clock::now() - time4;
+		auto elapse4 = std::chrono::high_resolution_clock::now() - time1;
 		auto d = std::chrono::duration_cast<std::chrono::microseconds>(elapse4).count() / divider;
 
-		LOG("Diff Done! Time: " << (d)) << "\n";
-		LOG("Total time: " << a + b + c + d);
+		LOG("Time: " << (d)) << "\n";
+
 	}
 	else
 	{
@@ -109,12 +81,13 @@ FileIO::~FileIO()
 void FileIO::avgVals(std::unordered_multimap<std::string, AirInfo>& Map, std::vector<AirInfo>& toVec)
 {
 	auto i = Map.find(Map.begin()->second.getDate());
-	while (i != Map.end())
+	do
 	{
-		double tempTemp{};
-		double humidTemp{};
+		double tempTemp{}, humidTemp{};
+
 		auto itr = Map.equal_range(i->second.getDate());
 		auto it = itr.first;
+
 		for (; it != itr.second; it++)
 		{
 			humidTemp += (it->second.getHumidity());
@@ -131,13 +104,11 @@ void FileIO::avgVals(std::unordered_multimap<std::string, AirInfo>& Map, std::ve
 		{
 			std::advance(i, Map.count(i->second.getDate()));
 		}
-		i = it;
-		/*else
+		else
 		{
 			i = Map.end();
-		}*/
-
-	}
+		}
+	} while (i != Map.end());
 }
 
 //Sort
@@ -242,6 +213,61 @@ void FileIO::sortOutside(int sortBy)
 	}
 }
 
+std::string FileIO::binarySearchInside(std::string& search)
+{
+	// Binary search
+	auto a = std::chrono::high_resolution_clock::now();
+
+
+
+
+
+	auto elapse = std::chrono::high_resolution_clock::now() - a;
+	auto d = std::chrono::duration_cast<std::chrono::microseconds>(elapse).count() / divider;
+	return std::string();
+}
+
+std::string FileIO::binarySearchOutside(std::string& search)
+{
+	auto a = std::chrono::high_resolution_clock::now();
+
+
+
+
+
+	auto elapse = std::chrono::high_resolution_clock::now() - a;
+	auto d = std::chrono::duration_cast<std::chrono::microseconds>(elapse).count() / divider;
+	return std::string();
+}
+
+std::string FileIO::linearSearchInside(std::string& search)
+{
+	auto it = vInsideAvgInfo.begin();
+
+	while (it != vInsideAvgInfo.end())
+	{
+		if (search == it->getDate())
+		{
+			return it->avgToString();
+		}
+		it++;
+	}
+	return "Could not find " + search;
+}
+
+std::string FileIO::linearSearchOutside(std::string& search)
+{
+	auto a = std::chrono::high_resolution_clock::now();
+
+
+
+
+
+	auto elapse = std::chrono::high_resolution_clock::now() - a;
+	auto d = std::chrono::duration_cast<std::chrono::microseconds>(elapse).count() / divider;
+	return std::string();
+}
+
 // Search TODO choose inside or outside, Move print to function
 // TODO Search
 void FileIO::searchMap(const std::string & searchWord)
@@ -273,7 +299,7 @@ void FileIO::printMap() // Prints everything inside the map
 		LOG(vInsideAvgInfo[i].avgToString() << "\n");
 	}
 	auto iii = vOutsideAvgInfo.end();
-	LOG((iii-1)->avgToString());
+	LOG((iii - 1)->avgToString());
 }
 
 //TODO Search vec.
