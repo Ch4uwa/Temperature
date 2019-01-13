@@ -25,10 +25,7 @@ void Program::printMenu(FileIO& f)
 		// Open door, how long and when loongest.
 		std::cout << "> MENU\n"
 			<< "> 1. Search date\n"
-			<< "> 2. Sort\n" // highest temp diff inside outside, hottest -> coldest day, dryest -> wet day, lowest -> highest mold risk.
-			<< "> 3. Winter Date\n"
-			<< "> 4. Autumn Date\n" // första dagen.
-			<< "> 5. Print\n"
+			<< "> 2. Print\n"
 			<< "> 0. Quit\n";
 
 		switch (input())
@@ -58,32 +55,14 @@ void Program::printMenu(FileIO& f)
 				break;
 			}
 			break;
-		case 2: // TODO Make this the print by instead of sort by.
-			std::cout << "Sort\n> 1. Highest -> Lowest Temperature\n> 2. Lowest -> Highest Humidity\n"
-				<< "> 3. Lowest -> Highest Moldrisk\n > 4. Highest -> Lowest Temperature Difference\n"
-				<< "> 5. Order by Date\n";
-			sortBy = input();
-			if (sortBy == 4)
-			{
-				f.sortInside(sortBy);
-				f.sortOutside(sortBy);
-			}
-			std::cout << "> Sort\n> 1. Inside data\n> 2. Outside data\n";
-			switch (input())
-			{
-			case 1:
-				f.sortInside(sortBy);
-				break;
-			case 2:
-				f.sortOutside(sortBy);
-				break;
-			default:
-				break;
-			}
-			break;
-		case 5:
+		case 2:
 			LOG("Print");
 			f.printMap();
+			//TODO Print the 5 highest and lowest Temperatures
+			//TODO Print the 5 driest and wet days
+			//TODO Print Highest and lowest risk for mold
+			//TODO Print Biggest and smallest temperature diff
+			//TODO Print time door open and what happens
 			break;
 		case 0:
 			LOG("Quit");
