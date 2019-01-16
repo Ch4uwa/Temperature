@@ -36,7 +36,7 @@ std::string AirInfo::toString()const
 	infoFull << "> =============================="
 		<< "\n> Placement: " << this->place
 		<< "\n> Date: " << this->date
-		<< "\n> Time: " << this->hour << ":" << this->minute << ":" << this->seconds
+		<< "\n> Time: " << this->time/*this->hour << ":" << this->minute << ":" << this->seconds*/
 		<< "\n> Temperature: " << this->temperature << " Celsius"
 		<< "\n> Humidity: " << this->humidity << " %"
 		<< "\n> ==============================\n";
@@ -58,8 +58,7 @@ std::string AirInfo::avgToString() const
 		<< "\n> Date: " << this->date
 		<< "\n> Average Temperature: " << std::fixed << std::setprecision(1) << this->avgTemperature << " Celsius"
 		<< "\n> Average Humidity: " << std::fixed << std::setprecision(1) << this->avgHumidity << " %"
-		<< "\n> Diff " << diff
-		<< "\n> Mold Index " << riskLevel
+		<< "\n> Diff " << this->diff
 		<< "\n> ==============================\n";
 	return infoAvg.str();
 }

@@ -6,19 +6,21 @@
 class AirInfo
 {
 private:
-	std::string date;
+	std::string date{};
 	int month{};
 	int day{};
-	std::string place;
+	std::string place{};
 	std::string time{};
-	double temperature;
-	int humidity;
-	int hour;
-	int minute;
-	int seconds;
+	double temperature{};
+	int humidity{};
+	int hour{};
+	int minute{};
+	int seconds{};
 
 	double avgTemperature{};
 	double avgHumidity{};
+	
+	
 
 	double diff{};
 
@@ -70,6 +72,7 @@ public:
 	inline const int getSeconds()const { return this->seconds; }
 	inline const int getMonth()const { return this->month; }
 	inline const int getDay()const { return this->day; }
+
 };
 
 #endif // !AIRINFO_H

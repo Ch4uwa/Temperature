@@ -6,11 +6,10 @@ FileIO::FileIO(const std::string& filename)
 {
 	vInsideAvgInfo.reserve(vReserveAmountSplit);
 	vOutsideAvgInfo.reserve(vReserveAmountSplit);
-	// 350003
 	myMapInside.reserve(150001);
 	myMapOutside.reserve(150001);
-	//myMapAvg.reserve(401);
-
+	mapInsideAvgData.reserve(199);
+	mapOutsideAvgData.reserve(199);
 
 	auto time1 = CSTART;
 	std::ifstream inFile(filename);
@@ -20,6 +19,7 @@ FileIO::FileIO(const std::string& filename)
 		std::string holder{};
 		std::string date{};
 		std::string place{};
+		std::string time{};
 		int hour{};
 		int minute{};
 		int seconds{};
@@ -28,13 +28,12 @@ FileIO::FileIO(const std::string& filename)
 
 		while (getline(inFile, date, ' '))
 		{
-			//getline(inFile, date, ' ');
-			getline(inFile, holder, ':');
-			hour = std::stoi(holder);
+			getline(inFile, time, ',');
+			/*hour = std::stoi(holder);
 			getline(inFile, holder, ':');
 			minute = std::stoi(holder);
 			getline(inFile, holder, ',');
-			seconds = std::stoi(holder);
+			*/
 			getline(inFile, place, ',');
 			getline(inFile, holder, ',');
 			temperature = stod(holder);
@@ -45,13 +44,11 @@ FileIO::FileIO(const std::string& filename)
 			{
 				AirInfo airinfo(date, place, hour, minute, seconds, temperature, humidity);
 				myMapInside.insert(std::make_pair(airinfo.getDate(), airinfo));
-				countIn++;
 			}
 			else if (place == "Ute" && date != "")
 			{
 				AirInfo airinfo(date, place, hour, minute, seconds, temperature, humidity);
 				myMapOutside.insert(std::make_pair(airinfo.getDate(), airinfo));
-				countOut++;
 			}
 		}
 		inFile.close();
@@ -60,25 +57,28 @@ FileIO::FileIO(const std::string& filename)
 		avgVals(myMapOutside, vOutsideAvgInfo);
 
 		tempDiff();
-
+		s_metroAutumn = metroAutumn();
+		s_metroWinter = metroWinter();
+		copyToMap();
 		auto end = CSTART;
 		auto durStartUp = CDURATION(end - time1);
 
-		LOG("Time taken: " << (durStartUp) << " microseconds\n");
-
+		LOG("Time taken: " << (durStartUp) << " seconds\n");
 	}
 	else
 	{
 		std::cerr << "ERROR reading file: " << filename << "\n";
 	}
 }
+
 // Destructor
 FileIO::~FileIO()
 {
 }
 
 // Make average values
-void FileIO::avgVals(std::unordered_multimap<std::string, AirInfo>& Map, std::vector<AirInfo>& toVec)
+template<typename T1,typename T2>
+void FileIO::avgVals(T1& Map, T2& toVec)
 {
 	auto i = Map.find(Map.begin()->second.getDate());
 	do
@@ -99,7 +99,7 @@ void FileIO::avgVals(std::unordered_multimap<std::string, AirInfo>& Map, std::ve
 
 		AirInfo airinfo(i->second.getDate(), i->second.getPlace(), tempTemp, humidTemp);
 		toVec.emplace_back(airinfo);
-
+		
 		if (itr.second != Map.end())
 		{
 			std::advance(i, Map.count(i->second.getDate()));
@@ -111,10 +111,23 @@ void FileIO::avgVals(std::unordered_multimap<std::string, AirInfo>& Map, std::ve
 	} while (i != Map.end());
 }
 
-//Sort
+
+void FileIO::copyToMap()
+{
+	for (const auto& a : vInsideAvgInfo)
+	{
+		mapInsideAvgData.emplace(a.getDate(), a);
+	}
+	for (const auto& n : vOutsideAvgInfo)
+	{
+		mapOutsideAvgData.emplace(n.getDate(), n);
+	}
+}
 
 // TODO sort by door open time
 
+
+// Calculate temp diff at same day. inside / outside.
 void FileIO::tempDiff()
 {
 	auto it = vInsideAvgInfo.begin();
@@ -126,8 +139,8 @@ void FileIO::tempDiff()
 	{
 		if (it->getDate() == oit->getDate())
 		{
-			it->setDiff((it->getAvgTemp() - oit->getAvgTemp()));
-			oit->setDiff((it->getAvgTemp() - oit->getAvgTemp()));
+			auto sum = it->getAvgTemp() - oit->getAvgTemp();
+			sum < 0 ? (it->setDiff((-sum)), oit->setDiff((-sum))) : (it->setDiff((sum)), oit->setDiff((sum)));
 		}
 	}
 }
@@ -142,39 +155,72 @@ void FileIO::sortInside(int sortBy)
 	switch (sortBy)
 	{
 	case eTEMP:
-		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+	{
+		start = CSTART;
+		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getAvgTemp() > rhs.getAvgTemp();
 			});
+		std::cout << "> Five days with highest temperature\n";
+		print5(vInsideAvgInfo);
+		std::cout << "> Five days with lowest temperature\n";
+		print5Rev(vInsideAvgInfo);
 		break;
+	}
 	case eHUMID:
-		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+	{
+		start = CSTART;
+		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getAvgHumid() < rhs.getAvgHumid();
 			});
+		std::cout << "> Five days with lowest humidity\n";
+		print5(vInsideAvgInfo);
+		std::cout << "> Five days with highest humidity\n";
+		print5Rev(vInsideAvgInfo);
 		break;
+	}
 	case eMOLD:
-		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+	{
+		start = CSTART;
+		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getRiskLevel() > rhs.getRiskLevel();
 			});
+		std::cout << "> Five days with highest mold risk\n";
+		print5(vInsideAvgInfo);
+		std::cout << "> Five days with lowest mold risk\n";
+		print5Rev(vInsideAvgInfo);
 		break;
+	}
 	case eTEMPDIFF:
-		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+	{
+		start = CSTART;
+		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getTempDiff() > rhs.getTempDiff();
 			});
+		std::cout << "> Five days with highest temperature difference\n";
+		print5(vInsideAvgInfo);
+		std::cout << "> Five days with lowest temperature difference\n";
+		print5Rev(vInsideAvgInfo);
 		break;
+	}
 	case eDATE:
+		start = CSTART;
 		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getDate() < rhs.getDate();
 			});
 		break;
+		std::cout << "> Five days with highest\n";
+		print5(vInsideAvgInfo);
+		std::cout << "> Five days with lowest\n";
+		print5Rev(vInsideAvgInfo);
 	}
 	auto end = CSTART;
 	auto dur = CDURATION(end - start);
-	LOG("Sort time taken: " << dur << " milliseconds");
+	LOG("Sort time taken: " << dur << " seconds");
 }
 
 void FileIO::sortOutside(int sortBy)
@@ -186,55 +232,124 @@ void FileIO::sortOutside(int sortBy)
 	switch (sortBy)
 	{
 	case eTEMP:
-		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+	{
+		start = CSTART;
+		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getAvgTemp() > rhs.getAvgTemp();
 			});
+		std::cout << "> Five days with highest temperature\n";
+		print5(vOutsideAvgInfo);
+		std::cout << "> Five days with lowest temperature\n";
+		print5Rev(vOutsideAvgInfo);
 		break;
+	}
 	case eHUMID:
-		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+	{
+		start = CSTART;
+		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getAvgHumid() < rhs.getAvgHumid();
 			});
+		std::cout << "> Five days with lowest humidity\n";
+		print5(vOutsideAvgInfo);
+		std::cout << "> Five days with highest humidity\n";
+		print5Rev(vOutsideAvgInfo);
 		break;
+	}
 	case eMOLD:
-		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+	{
+		start = CSTART;
+		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getRiskLevel() > rhs.getRiskLevel();
 			});
+		std::cout << "> Five days with highest mold risk\n";
+		print5(vOutsideAvgInfo);
+		std::cout << "> Five days with lowest mold risk\n";
+		print5Rev(vOutsideAvgInfo);
 		break;
+	}
 	case eTEMPDIFF:
-		std::stable_sort(it, itend, [&](const AirInfo& lhs, const AirInfo& rhs)
+	{
+		start = CSTART;
+		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getTempDiff() > rhs.getTempDiff();
 			});
+		std::cout << "> Five days with highest temperature difference\n";
+		print5(vOutsideAvgInfo);
+		std::cout << "> Five days with lowest temperature difference\n";
+		print5Rev(vOutsideAvgInfo);
 		break;
+	}
 	case eDATE:
+		start = CSTART;
 		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
 				return lhs.getDate() < rhs.getDate();
 			});
 		break;
+		std::cout << "> Five first days\n";
+		print5(vOutsideAvgInfo);
 	}
 	auto end = CSTART;
 	auto dur = CDURATION(end - start);
-	LOG("Sort time taken: " << dur << " milliseconds");
+	LOG("Sort time taken: " << dur << " seconds");
 }
 
-std::string FileIO::binarySearchInside(std::string& search)
+// Binary search
+std::string FileIO::binarySearchInside(const std::string& search)
 {
-	// Binary search
+	auto start = CSTART;
+	size_t first = 0;
+	auto last = vInsideAvgInfo.size() - 1;
+	auto mid = (first + last) / 2;
 
-	return std::string();
+	while (!(search == vInsideAvgInfo[mid].getDate()))
+	{
+		if (search > vInsideAvgInfo[mid].getDate())
+		{
+			first = (mid + 1);
+		}
+		else if (search < vInsideAvgInfo[mid].getDate())
+		{
+			last = (mid - 1);
+		}
+		mid = (first + last) / 2;
+	}
+	auto end = CSTART;
+	auto dur = CDURATION(end - start);
+	LOG("Binary time taken: " << dur << " microseconds\n");
+	return vInsideAvgInfo[mid].avgToString();
 }
 
-std::string FileIO::binarySearchOutside(std::string& search)
+std::string FileIO::binarySearchOutside(const std::string& search)
 {
+	auto start = CSTART;
+	size_t first = 0;
+	auto last = vOutsideAvgInfo.size() - 1;
+	auto mid = (first + last) / 2;
 
-	return std::string();
+	while (!(search == vOutsideAvgInfo[mid].getDate()))
+	{
+		if (search > vOutsideAvgInfo[mid].getDate())
+		{
+			first = (mid + 1);
+		}
+		else if (search < vOutsideAvgInfo[mid].getDate())
+		{
+			last = (mid - 1);
+		}
+		mid = (first + last) / 2;
+	}
+	auto end = CSTART;
+	auto dur = CDURATION(end - start);
+	LOG("Binary time taken: " << dur << " microseconds\n");
+	return vOutsideAvgInfo[mid].avgToString();
 }
 
-std::string FileIO::linearSearchInside(std::string& search)
+std::string FileIO::linearSearchInside(const std::string& search)
 {
 	auto start = CSTART;
 	auto it = vInsideAvgInfo.begin();
@@ -245,7 +360,7 @@ std::string FileIO::linearSearchInside(std::string& search)
 		{
 			auto end = CSTART;
 			auto dur = CDURATION(end - start);
-			LOG("Search time taken: " << dur << " milliseconds");
+			LOG("<Search> time taken: " << dur << " microseconds");
 			return it->avgToString();
 		}
 		it++;
@@ -253,14 +368,25 @@ std::string FileIO::linearSearchInside(std::string& search)
 	return "Could not find " + search;
 }
 
-std::string FileIO::linearSearchOutside(std::string& search)
+std::string FileIO::linearSearchOutside(const std::string& search)
 {
+	auto start = CSTART;
+	auto it = vOutsideAvgInfo.begin();
 
-	return std::string();
+	while (it != vOutsideAvgInfo.end())
+	{
+		if (search == it->getDate())
+		{
+			auto end = CSTART;
+			auto dur = CDURATION(end - start); 
+			LOG("<Search> time taken: " << dur << " microseconds");
+			return it->avgToString();
+		}
+		it++;
+	}
+	return "Could not find " + search;
 }
 
-// Search TODO choose inside or outside, Move print to function
-// TODO Search
 void FileIO::searchMapInside(const std::string & searchWord)
 {
 	auto itr = myMapInside.equal_range(searchWord);
@@ -276,20 +402,31 @@ void FileIO::searchMapOutside(const std::string & searchWord)
 }
 
 // Print function
-void FileIO::printMap()
+void FileIO::print5(const std::vector<AirInfo>& vec)
 {
-	for (int i = 0; i < 15 && i < vInsideAvgInfo.size(); i++)
+	auto it = vec.begin();
+	auto it5 = vec.begin();
+	std::advance(it5, 5);
+	for (; it < it5; it++)
 	{
-		LOG(vInsideAvgInfo[i].avgToString() << "\n");
+		std::cout << it->avgToString();
 	}
-	auto iii = vOutsideAvgInfo.end();
-	LOG("Last ele outside " << (iii - 1)->avgToString());
 }
 
+void FileIO::print5Rev(const std::vector<AirInfo>& vec)
+{
+	auto rit = vec.rbegin();
+	auto rit5 = vec.rbegin();
+	std::advance(rit5, 5);
+	for (; rit < rit5; rit++)
+	{
+		std::cout << rit->avgToString();
+	}
+}
 
+// Metrological Winter Autumn (Sweden)
 // Summer = 10 < temp, 5 days in row
 // Spring = 0 < temp < 10, 7 days in row not before 15feb
-// Metrological Winter Autumn (Sweden)
 std::string FileIO::metroWinter()const
 {
 	// Metro Winter
@@ -297,6 +434,7 @@ std::string FileIO::metroWinter()const
 	const int days{ 5 }, tempLow{ 0 }, tempHigh{ 10 };
 	int wDays{}, aDays{};
 	auto itr = vOutsideAvgInfo.begin();
+
 	for (; wDays < days && itr != vOutsideAvgInfo.end() - 1; itr++)
 	{
 		(itr->getAvgTemp() < tempLow) ? wDays++ : wDays = 0;
@@ -305,12 +443,13 @@ std::string FileIO::metroWinter()const
 	{
 		std::advance(itr, -5);
 	}
-	return (wDays == 5) ? ("Winter began " + itr->getDate() + "\n") : "Can't calculate Winter\n";
+	return (wDays == 5) ? ("Winter began " + itr->getDate()) : "Can't calculate Winter";
 }
-std::string FileIO::metroAutumn()
+
+// Metro Autumn
+// Autumn = 0 < temp < 10, 5 days in row not before 1 August
+std::string FileIO::metroAutumn()const
 {
-	// Metro Autumn
-	// Autumn = 0 < temp < 10, 5 days in row not before 1 August
 	const int days{ 5 }, tempLow{ 0 }, tempHigh{ 10 };
 	int wDays{}, aDays{};
 	auto itr = vOutsideAvgInfo.begin();
@@ -325,6 +464,6 @@ std::string FileIO::metroAutumn()
 	{
 		std::advance(itr, -5);
 	}
-	return (aDays == 5) ? ("Autumn began " + itr->getDate() + "\n") : "Can't calculate Autumn\n";
+	return (aDays == 5) ? ("Autumn began " + itr->getDate()) : "Can't calculate Autumn";
 }
 

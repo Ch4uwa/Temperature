@@ -12,13 +12,14 @@
 #include <map>
 #include <unordered_map>
 #include <chrono>
+#include <functional>
 
 
 // Macros
 #define STREAM_MAX std::numeric_limits<std::streamsize>::max()
 #if 1
 #define CSTART std::chrono::high_resolution_clock::now();
-#define CDURATION(elapse) std::chrono::duration_cast<std::chrono::microseconds>(elapse).count() / 1000000.0
+#define CDURATION(elapse) std::chrono::duration_cast<std::chrono::microseconds>(elapse).count()
 #endif // 1
 
 #if 1
