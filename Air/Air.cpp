@@ -28,7 +28,6 @@ int main()
 	double RF1lim{};
 	double RF{ 80 };
 
-
 	while (std::cin >> T2)
 	{
 
