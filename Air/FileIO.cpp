@@ -112,7 +112,7 @@ void FileIO::avgVals(T1& Map, T2& toVec)
 	} while (i != Map.end());
 }
 
-// Copy average value to Hash(Map)
+// Copy average value to Hashtabel(Map) for search O(1)
 void FileIO::copyToMap()
 {
 	auto start = CSTART;
@@ -499,14 +499,16 @@ std::string FileIO::linearSearchInside(const std::string& search)
 	auto mid = vInsideAvgInfo.size() / 2;
 
 
-	for (unsigned short i{ 0 }; it->getDate() != search && rit->getDate() != search && i != (1 + mid); i++, it++, rit++)
-		if (it->getDate() == search || rit->getDate() == search)
-		{
-			auto end = CSTART;
-			auto dur = CDURATION(end - start);
-			LOG("<Linear> Found time taken: " << dur << " microseconds");
-			return (it->getDate() == search) ? "it " + it->avgToString() : "rit " + rit->avgToString();
-		}
+	for (unsigned short i{ 0 }; it->getDate() != search && rit->getDate() != search && i != mid; i++, it++, rit++)
+	{
+	}
+	if (it->getDate() == search || rit->getDate() == search)
+	{
+		auto end = CSTART;
+		auto dur = CDURATION(end - start);
+		LOG("<Linear> Found time taken: " << dur << " microseconds");
+		return (it->getDate() == search) ? "it " + it->avgToString() : "rit " + rit->avgToString();
+	}
 
 	auto end = CSTART;
 	auto dur = CDURATION(end - start);
@@ -523,15 +525,16 @@ std::string FileIO::linearSearchOutside(const std::string& search)
 	auto rit = vOutsideAvgInfo.rbegin();
 	auto mid = vOutsideAvgInfo.size() / 2;
 
-
-	for (unsigned short i{ 0 }; it->getDate() != search && rit->getDate() != search && i != (1 + mid); i++, it++, rit++)
-		if (it->getDate() == search || rit->getDate() == search)
-		{
-			auto end = CSTART;
-			auto dur = CDURATION(end - start);
-			LOG("<Linear> Found time taken: " << dur << " microseconds");
-			return (it->getDate() == search) ? "it " + it->avgToString() : "rit " + rit->avgToString();
-		}
+	for (unsigned short i{ 0 }; it->getDate() != search && rit->getDate() != search && i != mid; i++, it++, rit++)
+	{
+	}
+	if (it->getDate() == search || rit->getDate() == search)
+	{
+		auto end = CSTART;
+		auto dur = CDURATION(end - start);
+		LOG("<Linear> Found time taken: " << dur << " microseconds");
+		return (it->getDate() == search) ? "it " + it->avgToString() : "rit " + rit->avgToString();
+	}
 
 	auto end = CSTART;
 	auto dur = CDURATION(end - start);
@@ -554,9 +557,23 @@ std::string FileIO::searchMapInside(const std::string & searchWord)
 std::string FileIO::searchMapOutside(const std::string & searchWord)
 {
 	auto start = CSTART;
-	auto itr = myMapOutside.find(searchWord);
+	auto itr = mapOutsideAvgData.find(searchWord);
 	auto end = CSTART;
 	auto dur = CDURATION(end - start);
 	LOG("Hash " << dur << " microsec");
 	return itr->second.avgToString();
+}
+
+
+void FileIO::door()
+{
+	/* warm air holds more water then cold
+		
+		when temp and humid inside and temp and humid outside, moves against eachother
+		if temp outside < temp inside
+			if humidity outside
+			temp inside should go down
+				
+		if inside humidity 
+	*/
 }

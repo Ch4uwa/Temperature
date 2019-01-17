@@ -2,7 +2,6 @@
 #define FILEIO_H
 #include "AirInfo.h"
 
-
 class FileIO
 {
 private:
@@ -18,20 +17,18 @@ private:
 	// containers
 	std::vector<AirInfo> vInsideAvgInfo;
 	std::vector<AirInfo> vOutsideAvgInfo;
-
 	std::unordered_map<std::string, AirInfo> mapInsideAvgData;
 	std::unordered_map<std::string, AirInfo> mapOutsideAvgData;
-
 	std::unordered_multimap<std::string, AirInfo> myMapInside;
 	std::unordered_multimap<std::string, AirInfo> myMapOutside;
 	
 	std::string s_metroWinter{};
 	std::string s_metroAutumn{};
 
+	// methods
 	std::string metroWinter()const;
 	std::string metroAutumn()const;
 
-	// methods
 	void print5(const std::vector<AirInfo>& vec)const;
 	void print5Rev(const std::vector<AirInfo>& vec)const;
 	void copyToMap();
@@ -48,7 +45,6 @@ public:
 	inline const std::string& getMetroWinter()const { return this->s_metroWinter; }
 	inline const std::string& getMetroAutumn()const { return this->s_metroAutumn; }
 
-	void printTempDiff();
 
 	// Sort
 	void sortInside(int sortBy);
@@ -64,7 +60,10 @@ public:
 	std::string searchMapInside(const std::string& searchWord);
 	std::string searchMapOutside(const std::string & searchWord);
 
+	void door();
+
 	// Print Method
+	void printTempDiff();
 
 };
 
