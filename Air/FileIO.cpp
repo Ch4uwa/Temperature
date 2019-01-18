@@ -344,7 +344,7 @@ void FileIO::sortInside(int sortBy)
 	}
 	auto end = CSTART;
 	auto dur = CDURATION(end - start);
-	LOG("Sort time taken: " << dur << " seconds");
+	LOG("Sort time taken: " << dur << " microseconds");
 }
 void FileIO::sortOutside(int sortBy)
 {
@@ -409,7 +409,7 @@ void FileIO::sortOutside(int sortBy)
 	}
 	auto end = CSTART;
 	auto dur = CDURATION(end - start);
-	LOG("Sort time taken: " << dur << " seconds");
+	LOG("Sort time taken: " << dur << " microseconds");
 }
 
 // Search methods
@@ -506,7 +506,7 @@ std::string FileIO::linearSearchInside(const std::string& search)
 		auto end = CSTART;
 		auto dur = CDURATION(end - start);
 		LOG("<Linear> Found time taken: " << dur << " microseconds");
-		return (it->getDate() == search) ? "it " + it->avgToString() : "rit " + rit->avgToString();
+		return (it->getDate() == search) ? it->avgToString() : rit->avgToString();
 	}
 
 	auto end = CSTART;
@@ -532,7 +532,7 @@ std::string FileIO::linearSearchOutside(const std::string& search)
 		auto end = CSTART;
 		auto dur = CDURATION(end - start);
 		LOG("<Linear> Found time taken: " << dur << " microseconds");
-		return (it->getDate() == search) ? "it " + it->avgToString() : "rit " + rit->avgToString();
+		return (it->getDate() == search) ? it->avgToString() : rit->avgToString();
 	}
 
 	auto end = CSTART;
