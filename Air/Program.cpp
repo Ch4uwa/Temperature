@@ -9,8 +9,8 @@ void Program::run()
 {
 	const std::string filename{ "tempdata4.csv" };
 	FileIO fileio(filename);
+	LOG("Reading: " << filename);
 	printMenu(fileio);
-	LOG(filename);
 }
 
 void Program::printMenu(FileIO& f)
@@ -157,27 +157,26 @@ void Program::printMenu(FileIO& f)
 					<< "> 3. High to low mold risk\n"
 					<< "> 4. Date\n";
 
-				sortBy = input();
-				/*std::cin.ignore(STREAM_MAX, '\n');*/
-				switch (sortBy)
+				switch (input())
 				{
 				case 1:// Temp
-					f.sortInside(sortBy);
+					f.sortInside(1);
 					break;
 				case 2:// Humid
-					f.sortInside(sortBy);
+					f.sortInside(2);
 					break;
 				case 3:// Mold
-					f.sortInside(sortBy);
+					f.sortInside(3);
 					break;
 				case 4:// Date
-					f.sortInside(sortBy);
+					f.sortInside(4);
 					break;
 
 				default:
 					std::cerr << "Only (1) - (4) is a valid choice.\n";
 					break;
 				}
+				break;
 			case 2:// Outside
 				std::cout << "> Print by\n"
 					<< "> 1. High to low temp\n"
@@ -185,27 +184,26 @@ void Program::printMenu(FileIO& f)
 					<< "> 3. High to low mold risk\n"
 					<< "> 4. Date\n";
 
-				sortBy = input();
-				/*std::cin.ignore(STREAM_MAX, '\n');*/
-				switch (sortBy)
+				switch (input())
 				{
 				case 1:// Temp
-					f.sortOutside(sortBy);
+					f.sortOutside(1);
 					break;
 				case 2:// Humid
-					f.sortOutside(sortBy);
+					f.sortOutside(2);
 					break;
 				case 3:// Mold
-					f.sortOutside(sortBy);
+					f.sortOutside(3);
 					break;
 				case 4:// Date
-					f.sortOutside(sortBy);
+					f.sortOutside(4);
 					break;
 
 				default:
 					std::cerr << "Only (1) - (4) is a valid choice.\n";
 					break;
 				}
+				break;
 			case 3:
 				f.printTempDiff();
 				break;
@@ -214,7 +212,6 @@ void Program::printMenu(FileIO& f)
 				break;
 			}
 
-			//TODO Print time door open and what happens
 			break;
 		case 0:
 			Quit = true;
@@ -224,6 +221,7 @@ void Program::printMenu(FileIO& f)
 			std::cout << "Make a valid choice.\n";
 			break;
 		}
+
 	} while (!Quit);
 }
 

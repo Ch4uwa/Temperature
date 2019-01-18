@@ -7,10 +7,11 @@
 
 int main()
 {
-	
-
 	Program p;
 	p.run();
+
+
+
 	/*double temp{}, humid{};
 	while (std::cin >> temp >> humid)
 	{

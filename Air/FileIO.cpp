@@ -489,7 +489,7 @@ std::string FileIO::binarySearchOutside(const std::string& search)
 	return vOutsideAvgInfo[mid].avgToString();
 }
 
-// Linear search
+// Linear search, Searching linear two directions
 std::string FileIO::linearSearchInside(const std::string& search)
 {
 	auto start = CSTART;
@@ -497,7 +497,7 @@ std::string FileIO::linearSearchInside(const std::string& search)
 	auto rit = vInsideAvgInfo.rbegin();
 	auto mid = vInsideAvgInfo.size() / 2;
 
-
+	
 	for (unsigned short i{ 0 }; it->getDate() != search && rit->getDate() != search && i != mid; i++, it++, rit++)
 	{
 	}
@@ -546,7 +546,9 @@ std::string FileIO::linearSearchOutside(const std::string& search)
 std::string FileIO::searchMapInside(const std::string & searchWord)
 {
 	auto start = CSTART;
+
 	auto itr = mapInsideAvgData.find(searchWord);
+
 	auto end = CSTART;
 	auto dur = CDURATION(end - start);
 	LOG("Hash " << dur << " microsec");
