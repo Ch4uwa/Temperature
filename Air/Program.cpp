@@ -158,7 +158,7 @@ void Program::printMenu(FileIO& f)
 					<< "> 4. Date\n";
 
 				sortBy = input();
-				std::cin.ignore(STREAM_MAX, '\n');
+				/*std::cin.ignore(STREAM_MAX, '\n');*/
 				switch (sortBy)
 				{
 				case 1:// Temp
@@ -186,7 +186,7 @@ void Program::printMenu(FileIO& f)
 					<< "> 4. Date\n";
 
 				sortBy = input();
-				std::cin.ignore(STREAM_MAX, '\n');
+				/*std::cin.ignore(STREAM_MAX, '\n');*/
 				switch (sortBy)
 				{
 				case 1:// Temp
@@ -221,6 +221,7 @@ void Program::printMenu(FileIO& f)
 			// Write to file
 			break;
 		default:
+			std::cout << "Make a valid choice.\n";
 			break;
 		}
 	} while (!Quit);

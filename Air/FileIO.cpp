@@ -321,7 +321,7 @@ void FileIO::sortInside(int sortBy)
 		start = CSTART;
 		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
-				return lhs.getRiskLevel() > rhs.getRiskLevel();
+				return lhs.getAvgRiskLevel() > rhs.getAvgRiskLevel();
 			});
 		insideByDate = false;
 		std::cout << "> Five days with highest mold risk\n";
@@ -337,10 +337,9 @@ void FileIO::sortInside(int sortBy)
 				return lhs.getDate() < rhs.getDate();
 			});
 		insideByDate = true;
-		std::cout << "> Five days with highest\n";
+		
+		std::cout << "> Five first days\n";
 		print5(vInsideAvgInfo);
-		std::cout << "> Five days with lowest\n";
-		print5Rev(vInsideAvgInfo);
 		break;
 	}
 	auto end = CSTART;
@@ -388,7 +387,7 @@ void FileIO::sortOutside(int sortBy)
 		start = CSTART;
 		std::stable_sort(it, itend, [](const AirInfo& lhs, const AirInfo& rhs)
 			{
-				return lhs.getRiskLevel() > rhs.getRiskLevel();
+				return lhs.getAvgRiskLevel() > rhs.getAvgRiskLevel();
 			});
 		outsideByDate = false;
 		std::cout << "> Five days with highest mold risk\n";
