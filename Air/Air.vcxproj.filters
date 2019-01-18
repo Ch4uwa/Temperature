@@ -45,4 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="test.csv" />
+    <None Include="tempdata2.csv" />
+    <None Include="tempdata4.csv" />
+  </ItemGroup>
 </Project>

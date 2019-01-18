@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="2.11">
+    <attributes>
+        <attribute name="name" value=""/>
+        <attribute name="authors" value="mrtnk"/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2019-01-18 02:01:11 "/>
+        <attribute name="created" value="bXJ0bms7TUFSVElOSzsyMDE5LTAxLTE4OyIwMTo0MDoyNyAiOzIyODE="/>
+        <attribute name="edited" value="bXJ0bms7TUFSVElOSzsyMDE5LTAxLTE4OyIwMjowMToxMSAiOzE7MjM4MA=="/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="i" type="Integer" array="False" size=""/>
+            <declare name="arr" type="Integer" array="True" size="15"/>
+            <for variable="i" start="0" end="14" direction="inc" step="1">
+                <assign variable="arr[i]" expression="i"/>
+            </for>
+            <declare name="first" type="Integer" array="False" size=""/>
+            <declare name="mid" type="Integer" array="False" size=""/>
+            <declare name="last" type="Integer" array="False" size=""/>
+            <assign variable="first" expression="0"/>
+            <assign variable="last" expression="15-1"/>
+            <assign variable="mid" expression="last/2"/>
+            <declare name="search" type="Integer" array="False" size=""/>
+            <assign variable="search" expression="0"/>
+            <input variable="search"/>
+            <while expression="(!(search==arr[mid]))">
+                <if expression="search &gt; arr[mid]">
+                    <then>
+                        <assign variable="first" expression="(mid+1)"/>
+                    </then>
+                    <else>
+                        <if expression="search&lt;arr[mid]">
+                            <then>
+                                <assign variable="last" expression="(mid-1)"/>
+                            </then>
+                            <else/>
+                        </if>
+                    </else>
+                </if>
+                <assign variable="mid" expression="(first+last)/2"/>
+            </while>
+            <output expression="arr[mid]" newline="True"/>
+        </body>
+    </function>
+</flowgorithm>
